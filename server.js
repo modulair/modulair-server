@@ -33,4 +33,4 @@ app.listen(config.port);
 exports = module.exports = app;
 
 // Logging initialization
-console.log(chalk.bold.gray.bgWhite('modulair-server application started on port ' + config.port));
+console.log(chalk.bold.gray.bgWhite('modulair-server application started on port ') + chalk.bold.white.bgBlue(config.port));
