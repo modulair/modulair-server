@@ -6,7 +6,7 @@ module.exports = {
 		description: 'Javascript back-end for Modulair system with MongoDB and Node.js',
 		keywords: 'MongoDB, Express, AngularJS, Node.js'
 	},
-	port: process.env.PORT || 3000,
+	port: process.env.PORT || 3015,
 	templateEngine: 'swig',
 	sessionSecret: 'MEAN',
 	sessionCollection: 'sessions',
