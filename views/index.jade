@@ -52,3 +52,42 @@ block content
         // /ADD USER
 
     // /WRAPPER
+    
+    // Wrapper
+    #wrapper
+
+        // HOME INFO
+        #homeInfo
+            h2 Home Info
+            p
+                strong Name:
+                |  <span id='homeInfoName'></span>
+                br
+                strong Owner:
+                |  <span id='homeInfoOwner'></span>
+
+        // /Home INFO
+
+        // Home LIST
+        h2 Home List
+        #homeList
+            table
+                thead
+                    th HomeName
+                    th Owner
+                    th Delete?
+                tbody
+        // /Home LIST
+
+        // ADD Home
+        h2 Add Home
+        #addHome
+            fieldset
+                input#inputHomeName(type='text', placeholder='Home name')
+                br
+                input#inputHomeOwner(type='text', placeholder='Owner')
+                br
+                button#btnAddHome Add Home
+        // /ADD Home
+
+    // /WRAPPER

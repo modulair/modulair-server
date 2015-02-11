@@ -8,18 +8,18 @@ var router = express.Router();
 /*
  * GET userlist.
  */
-router.get('/userlist', function(req, res) {
+router.get('/all', function(req, res) {
     var db = req.db;
-    db.collection('usercollection').find().toArray(function (err, items) {
+    db.collection('homecollection').find().toArray(function (err, items) {
         res.json(items);
     });
 });
 /*
  * POST to adduser.
  */
-router.post('/adduser', function(req, res) {
+router.post('/add', function(req, res) {
     var db = req.db;
-    db.collection('usercollection').insert(req.body, function(err, result){
+    db.collection('homecollection').insert(req.body, function(err, result){
         res.send(
             (err === null) ? { msg: '' } : { msg: err }
         );
@@ -28,13 +28,14 @@ router.post('/adduser', function(req, res) {
 /*
  * POST to adduser.
  */
-router.delete('/deleteuser/:id', function(req, res) {
+router.delete('/delete/:id', function(req, res) {
     var db = req.db;
-    var userToDelete = req.params.id;
-    db.collection('usercollection').removeById(userToDelete, function(err, result){
+    var homeToDelete = req.params.id;
+    db.collection('homecollection').removeById(homeToDelete, function(err, result){
         res.send(
             (result === 1) ? { msg: '' } : { msg: err }
         );
     });
 });
+
 module.exports = router;

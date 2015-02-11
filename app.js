@@ -17,9 +17,44 @@ var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true}
         
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var homes = require('./routes/homes');
+var systems = require('./routes/systems');
+var subsystems = require('./routes/subsystems');
 
-var app = express();
+var app = express(),
+    subApp = express();
+//     swagger = require("swagger-node-express").createNew(app);
+// console.log(swagger);
 
+// var findById = {
+//   'spec': {
+//     "description" : "Operations about pets",
+//     "path" : "/pet.{format}/{petId}",
+//     "notes" : "Returns a pet based on ID",
+//     "summary" : "Find pet by ID",
+//     "method": "GET",
+//     "parameters" : [swagger.paramTypes.path("petId", "ID of pet that needs to be fetched", "string")],
+//     "type" : "Pet",
+//     "responseMessages" : [swagger.errors.invalid('id'), swagger.errors.notFound('pet')],
+//     "nickname" : "getPetById"
+//   },
+//   'action': function (req,res) {
+//     if (!req.params.petId) {
+//       throw swagger.errors.invalid('id');
+//     }
+//     var id = parseInt(req.params.petId);
+//     var pet = petData.getPetById(id);
+
+//     if (pet) {
+//       res.send(JSON.stringify(pet));
+//     } else {
+//       throw swagger.errors.notFound('pet');
+//     }
+//   }
+// };
+
+// swagger.addGet(findById);
+// swagger.configure("/api", "0.1");
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -41,6 +76,9 @@ app.use(function (req, res, next) {
 //ROUTES BRO
 app.use('/', routes);
 app.use('/users', users);
+app.use('/homes', homes);
+app.use('/systems', systems);
+app.use('/subsystems', subsystems);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
