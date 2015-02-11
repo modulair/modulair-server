@@ -21,8 +21,22 @@ var homes = require('./routes/homes');
 var systems = require('./routes/systems');
 var subsystems = require('./routes/subsystems');
 
-var app = express(),
-    subApp = express();
+var app = express();
+var subApp = express();
+
+// subApp.use(express.json());
+// subApp.use(express.urlencoded());
+// subpath.configure(function() {
+//   subpath.use(express.cookieParser());
+//   subpath.use(express.bodyParser());
+//   subpath.use(express.methodOverride());
+//   subpath.use(express.session({ secret: config['SESSION_TOKEN'] }));
+//   subpath.use(passport.initialize());
+//   subpath.use(passport.session());
+//   subpath.use(authenticate);
+//   swagger.setAppHandler(subpath);
+// });
+var swagger = require("swagger-node-express").createNew(subApp);
 //     swagger = require("swagger-node-express").createNew(app);
 // console.log(swagger);
 
@@ -73,7 +87,9 @@ app.use(function (req, res, next) {
 });
 
 
-//ROUTES BRO
+// //ROUTES BRO
+// app.use('/api', subpath);
+app.use('/swagger', express.static(path.join(__dirname, 'node_modules/swagger-node-express/swagger-ui')));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/homes', homes);
