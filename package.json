@@ -1,5 +1,7 @@
 {
     "name"   : "modulair-server",
+    "description": "Javascript back-end for Modulair system with MongoDB and Node.js",
+    "author": "Muhammad Mustadi",
     "version": "0.0.3",
     "private": true,
     "scripts": {
