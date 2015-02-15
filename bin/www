@@ -4,7 +4,8 @@
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require('../app').app;
+var api = require('../app').api;
 var debug = require('debug')('scratch-server:server');
 var http = require('http');
 var chalk = require('chalk');
@@ -15,21 +16,32 @@ var chalk = require('chalk');
 
 var port = normalizePort(process.env.PORT || '3210');
 app.set('port', port);
+var apiPort = normalizePort(process.env.APIPORT || '3211');
+api.set('port', apiPort);
+
 
 /**
  * Create HTTP server.
  */
 
 var server = http.createServer(app);
+var apiServer = http.createServer(api);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-console.log(chalk.bold.gray.bgWhite('scratch-server')+chalk.white(' started on port ') + chalk.bold.white.bgBlue(port));
+server.listen(port, function () {
+  console.log(chalk.bold.gray.bgWhite('scratch-server')+chalk.white(' started on port ') + chalk.bold.white.bgBlue(port));
+});
 server.on('error', onError);
 server.on('listening', onListening);
+apiServer.listen(apiPort, function () {
+  console.log(chalk.bold.gray.bgWhite('api-server')+chalk.white(' started on port ') + chalk.bold.white.bgBlue(apiPort));
+});
+apiServer.on('error', onError);
+apiServer.on('listening', onListening);
+
 
 /**
  * Normalize a port into a number, string, or false.
