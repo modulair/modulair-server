@@ -5,10 +5,6 @@ var router = express.Router();
 router.get('/', function(req, res, next) {
   res.render('apiIndex', { title: 'api-server' });
 });
-/* GET welcome page. */
-router.get('/welcome', function(req, res, next) {
-  res.render('welcome', { title: 'scratch-server' });
-});
 
 // /* GET Userlist page. */
 // router.get('/userlist', function(req, res) {

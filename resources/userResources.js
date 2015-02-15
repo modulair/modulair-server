@@ -1,6 +1,6 @@
 var mongo = require('mongoskin');
-
-var param = require("../node_modules/swagger-node-express/lib/paramTypes");
+var params = require("../node_modules/swagger-node-express/lib/paramTypes");
+var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling');
 
 exports.getAll = {
   'spec': {
@@ -29,12 +29,12 @@ exports.addUser = {
     "summary" : "Add user",
     "method": "POST",
     "parameters" : [
-      param.query("username", "username of NEW user", "string", true),
-      param.query("email", "email of NEW user", "string", true),
-      param.query("fullname", "fullname of NEW user", "string", true),
-      param.query("age", "age of NEW user", "int", true),
-      param.query("location", "location of NEW user", "string", true),
-      param.query("gender", "gender of NEW user", "string", true),
+      params.query("username", "username of NEW user", "string", true),
+      params.query("email", "email of NEW user", "string", true),
+      params.query("fullname", "fullname of NEW user", "string", true),
+      params.query("age", "age of NEW user", "int", true),
+      params.query("location", "location of NEW user", "string", true),
+      params.query("gender", "gender of NEW user", "string", true),
       ],
     "responseClass": "",
     "errorResponses": [],
@@ -53,7 +53,35 @@ exports.addUser = {
     //     }
     //   );
     // });
-    res.send(JSON.stringify("test is ok"));
+    var newUsername = req.query.username || req.body.username || '';
+    var newEmail = req.query.email || req.body.email || '';
+    var newFullname = req.query.fullname || req.body.fullname || '';
+    var newAge = req.query.age || req.body.age || undefined;
+    var newLocation = req.query.location || req.body.location || '';
+    var newGender = req.query.gender || req.body.gender || '';
+    console.log('database: ' + req.db);
+    if (newUsername && newEmail && newFullname && newAge && newLocation && newGender) {
+      var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+      var userToAdd = {
+        "username": newUsername,
+        "email": newEmail,
+        "fullname": newFullname,
+        "age": newAge,
+        "location": newLocation,
+        "gender": newGender
+      }
+      db.collection('usercollection').insert(userToAdd, function(err, result) {
+        res.send(
+          (err === null) ? {
+            msg: 'successfully added user ' + newUsername
+          } : {
+            msg: err
+          }
+        );
+      });
+    } else {
+      res.send(JSON.stringify("Cannot do that."))
+    }
   }
 };
 

@@ -91,7 +91,8 @@ api.use("/v1", subpath);
 var swagger = require('swagger-node-express').createNew(subpath)
     , test = require("./models/test")
     , models = require("./models/models")
-    , userResources = require('./resources/userResources');
+    , userResources = require('./resources/userResources')
+    , homeResources = require('./resources/homeResources');
 // swagger.addValidator(
 //   function validate(req, path, httpMethod) {
 //     //  example, only allow POST for api_key="special-key"
@@ -119,8 +120,11 @@ swagger.setApiInfo({
 
 swagger.addModels(models)
     .addGet(test.dummyTestMethod)
+
     .addGet(userResources.getAll)
-    .addPost(userResources.addUser);
+    .addPost(userResources.addUser)
+
+    .addGet(homeResources.getAll);
 
 // Set api-doc path
 swagger.configureSwaggerPaths('', 'api-docs', '');
