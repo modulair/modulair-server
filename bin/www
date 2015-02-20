@@ -4,8 +4,8 @@
  * Module dependencies.
  */
 
-var app = require('../app').app;
-var api = require('../app').api;
+var app = require('../app');
+var api = require('../api');
 var debug = require('debug')('scratch-server:server');
 var http = require('http');
 var chalk = require('chalk');

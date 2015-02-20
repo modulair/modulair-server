@@ -1,6 +1,7 @@
 var mongo = require('mongoskin');
 var params = require("../node_modules/swagger-node-express/lib/paramTypes");
 var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling');
+var BSON = mongo.BSONPure;
 
 exports.getAll = {
   'spec': {
@@ -9,11 +10,9 @@ exports.getAll = {
     "notes" : "Returns all user",
     "summary" : "Find pet by ID",
     "method": "GET",
-    "type" : "Pet",
-    "nickname" : "getAll"
+    "nickname" : "getAllHome"
   },
   'action': function (req,res) {
-    console.log(req.db);
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('usercollection').find().toArray(function (err, items) {
         res.json(items);
@@ -21,12 +20,35 @@ exports.getAll = {
   }
 };
 
-exports.addUser = {
+exports.getOneById = {
+  'spec': {
+    "description" : "Operations about user",
+    "path" : "/users/id/{user_id}",
+    "notes" : "Returns one user",
+    "summary" : "Returns one user by ID",
+    "method": "GET",
+    "parameters" : [
+      params.path("user_id", "user ID of user", "string")
+      ],
+    "nickname" : "getOneByIdUser"
+  },
+  'action': function (req,res) {
+    var user_id = req.params.user_id || req.query.user_id;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    // console.log(user_id);
+    // res.send(JSON.stringify(req.params));
+    db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
+      res.json(items);
+    });
+  }
+};
+
+exports.addOne = {
   'spec': {
     "description" : "Operations about user",
     "path" : "/users/add",
-    "notes" : "Add user",
-    "summary" : "Add user",
+    "notes" : "Add one user",
+    "summary" : "Add one user",
     "method": "POST",
     "parameters" : [
       params.query("username", "username of NEW user", "string", true),
@@ -38,7 +60,7 @@ exports.addUser = {
       ],
     "responseClass": "",
     "errorResponses": [],
-    "nickname" : "addUser"
+    "nickname" : "addOneUser"
   },
   'action': function (req,res) {
     // var db = mongo.db("mongodb://localhost:27017/scratch-test", {
@@ -72,9 +94,7 @@ exports.addUser = {
       }
       db.collection('usercollection').insert(userToAdd, function(err, result) {
         res.send(
-          (err === null) ? {
-            msg: 'successfully added user ' + newUsername
-          } : {
+          (err === null) ? userToAdd : {
             msg: err
           }
         );
