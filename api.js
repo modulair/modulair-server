@@ -93,7 +93,7 @@ api.use('/', apiIndex);
 // catch 404 and forward to error handler
 api.use(function(req, res, next) {
     res.status(404);
-    res.send(JSON.stringify("Not found."));
+    res.send(JSON.stringify("What are you looking for?"));
 });
 
 // error handlers

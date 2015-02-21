@@ -1,16 +1,18 @@
 var mongo = require('mongoskin');
 var params = require("../node_modules/swagger-node-express/lib/paramTypes");
-var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling');
+var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling').error;
 var BSON = mongo.BSONPure;
+var async = require('async');
 
 exports.getAll = {
   'spec': {
-    "description" : "Operations about user",
-    "path" : "/users/all",
-    "notes" : "Returns all user",
-    "summary" : "Find pet by ID",
-    "method": "GET",
-    "nickname" : "getAllHome"
+    description : "Operations about user",
+    path : "/users/all",
+    notes : "Returns all user",
+    summary : "Find pet by ID",
+    method: "GET",
+    nickname : "getAllUser",
+    produces : ["application/json"]
   },
   'action': function (req,res) {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
@@ -35,11 +37,69 @@ exports.getOneById = {
   'action': function (req,res) {
     var user_id = req.params.user_id || req.query.user_id;
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-    // console.log(user_id);
-    // res.send(JSON.stringify(req.params));
-    db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
-      res.json(items);
+    var userRes;
+    async.series([
+      function (callback) {
+      // check if string is ObjectID
+        if (/^[0-9a-f]{24}$/.test(user_id)) {
+          callback(null);
+        } else {
+          callback(400);
+        }
+      },
+      function (callback) {
+        // do some more stuff ...
+        db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
+          if (!err) {
+            userRes = items;
+            callback(null);
+          } else {
+            callback(400);
+          }
+        });
+      },
+      function (callback) {
+        if (userRes.length <= 0) {
+          callback(404);
+        } else {
+          if (userRes.length > 1) {
+            callback(400);
+          } else {
+            callback(null);
+          }
+        }
+      }
+    ],
+    // optional callback
+    function (err, results) {
+      if (err) {
+        switch(err) {
+          case 400:
+            res.status(err).send(errorHandling(err, "Bad request."));
+            break;
+          case 404:
+            res.status(err).send(errorHandling(err, "Not found."));
+            break;
+          default:        
+            res.status(500).send(JSON.stringify("Unknown error."));
+            break;
+        }
+      } else {
+        res.status(200).json(userRes[0]);
+      }
     });
+    // var BSON_id = BSON.ObjectID(user_id);
+    // console.log(BSON_id);
+    // var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    // // console.log(user_id);
+    // // res.send(JSON.stringify(req.params));
+    // db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
+    //   if (!err) {
+    //     res.json(items);
+    //   } else {
+    //     res.send(err);
+    //   }
+    // });
   }
 };
 
