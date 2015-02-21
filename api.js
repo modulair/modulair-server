@@ -1,4 +1,5 @@
 var express = require('express');
+var url =require('url');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -9,8 +10,7 @@ var chalk = require('chalk');
 var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
 
-
-//API BASE ROUTE 
+//BASE ROUTE
 var domain = 'localhost';
 var applicationUrl = 'http://' + domain + ':3211/v1';
 
@@ -21,6 +21,7 @@ var subpath = express();
 // view engine setup
 api.set('views', path.join(__dirname, 'views'));
 api.set('view engine', 'jade');
+api.set('json spaces', 3);
 // uncomment after placing your favicon in /public
 api.use(favicon(__dirname + '/public/favicon.ico'));
 api.use(logger('dev'));
@@ -29,7 +30,6 @@ api.use(cookieParser());
 api.use(bodyParser.urlencoded({ extended: false }));
 //swagger
 api.use("/v1", subpath);
-//swagger and resources
 var swagger = require('swagger-node-express').createNew(subpath)
     , test = require("./models/test")
     , models = require("./models/models")
@@ -37,7 +37,56 @@ var swagger = require('swagger-node-express').createNew(subpath)
     , homeResources = require('./resources/homeResources')
     , systemResources = require('./resources/systemResources');
 
-//swagger validation
+
+swagger.setApiInfo({
+    title: "Modulair API",
+    description: "API to manage Modulair systems",
+    termsOfServiceUrl: "http://modulair.io/terms",
+    contact: "muhammad.mustadi@gmail.com",
+    license: "",
+    licenseUrl: ""
+});
+
+swagger.addModels(models)
+    //TEST
+    .addGet(test.dummyTestMethod)
+    //USER RESOURCES
+    .addGet(userResources.getAll)
+    .addGet(userResources.getOneById)
+    .addPost(userResources.addOne)
+    //HOME RESOURCES
+    .addGet(homeResources.getAll)
+    .addPost(homeResources.addOne)
+    //SYSTEM RESOURCES
+    .addGet(systemResources.getAll)
+    .addPost(systemResources.addOne);
+
+
+// Set api-doc path
+swagger.configureSwaggerPaths('', 'api-docs', '');
+swagger.configure(applicationUrl, '0.1.0');
+
+swagger.configureDeclaration('test', {
+    description: 'For testing purposes',
+    protocols : ["http"]
+});
+swagger.configureDeclaration('users', {
+    description: 'Operations about Users',
+    protocols : ["http"]
+});
+swagger.configureDeclaration('homes', {
+    description: 'Operations about Homes',
+    protocols : ["http"]
+});
+
+// Set header and X-Origin CORS FYEA
+swagger.setHeaders = function setHeaders(res) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type, X-API-KEY");
+  res.header("Content-Type", "application/json; charset=utf-8");
+};
+
+    
 // swagger.addValidator(
 //   function validate(req, path, httpMethod) {
 //     //  example, only allow POST for api_key="special-key"
@@ -54,42 +103,6 @@ var swagger = require('swagger-node-express').createNew(subpath)
 //     return true;
 //   }
 // );
-
-//SWAGGER start
-swagger.configure(applicationUrl, '0.1.0');
-
-swagger.setApiInfo({
-    title: "Modulair API",
-    description: "API to manage Modulair systems",
-    termsOfServiceUrl: "http://modulair.io/terms",
-    contact: "muhammad.mustadi@gmail.com",
-    license: "",
-    licenseUrl: ""
-});
-
-swagger.addModels(models)
-    .addGet(test.dummyTestMethod)
-    //USER RESOURCES
-    .addGet(userResources.getAll)
-    .addGet(userResources.getOneById)
-    .addPost(userResources.addOne)
-    //HOME RESOURCES
-    .addGet(homeResources.getAll)
-    .addPost(homeResources.addOne)
-    //SYSTEM RESOURCES
-    .addGet(systemResources.getAll)
-    .addPost(systemResources.addOne);
-
-// Set api-doc path
-swagger.configureSwaggerPaths('', 'api-docs', '');
-
-// Set header and X-Origin
-swagger.setHeaders = function setHeaders(res) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-Type, X-API-KEY");
-  res.header("Content-Type", "application/json; charset=utf-8");
-};
-
 
 
 var api_handler = express.static(path.join(__dirname, 'node_modules/swagger-node-express/swagger-ui'));
@@ -110,7 +123,7 @@ api.use('/', apiIndex);
 // catch 404 and forward to error handler
 api.use(function(req, res, next) {
     res.status(404);
-    res.send(JSON.stringify("What are you looking for?"));
+    res.json({code:404, message: "What are you looking for?"});
 });
 
 // error handlers

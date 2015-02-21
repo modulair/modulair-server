@@ -1,3 +1,6 @@
+//RESPONSES
+res.status(stat).send(JSON.stringify(message, null, 3));
+
 //ASYNC
 async.series([
       function (callback) {

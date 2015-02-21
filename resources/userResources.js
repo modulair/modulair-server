@@ -6,10 +6,9 @@ var async = require('async');
 
 exports.getAll = {
   'spec': {
-    description : "Operations about user",
     path : "/users/all",
     notes : "Returns all user",
-    summary : "Find pet by ID",
+    summary : "Returns all user",
     method: "GET",
     nickname : "getAllUser",
     produces : ["application/json"]
@@ -17,14 +16,13 @@ exports.getAll = {
   'action': function (req,res) {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('usercollection').find().toArray(function (err, items) {
-        res.json(items);
+        res.status(200).send(JSON.stringify(items, null, 3));
     });
   }
 };
 
 exports.getOneById = {
   'spec': {
-    "description" : "Operations about user",
     "path" : "/users/id/{user_id}",
     "notes" : "Returns one user",
     "summary" : "Returns one user by ID",
@@ -51,7 +49,6 @@ exports.getOneById = {
         db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
           if (!err) {
             userRes = items;
-            console.log(items);
             callback(null);
           } else {
             callback(400);
@@ -75,17 +72,20 @@ exports.getOneById = {
       if (err) {
         switch(err) {
           case 400:
-            res.status(err).send(errorHandling(err, "Bad request."));
+            message = errorHandling(err, "Bad request.");
+            res.status(err).send(JSON.stringify(message, null, 3));
             break;
           case 404:
-            res.status(err).send(errorHandling(err, "Not found."));
+            message = errorHandling(err, "Not found.");
+            res.status(err).send(JSON.stringify(message, null, 3));
             break;
           default:        
-            res.status(500).send(JSON.stringify("Unknown error."));
+            message = errorHandling(err, "Unknown error.");
+            res.status(500).send(JSON.stringify(message, null, 3));
             break;
         }
       } else {
-        res.status(200).json(userRes[0]);
+        res.status(200).send(JSON.stringify(userRes[0], null, 3));
       }
     });
   }
@@ -93,7 +93,6 @@ exports.getOneById = {
 
 exports.addOne = {
   'spec': {
-    "description" : "Operations about user",
     "path" : "/users/add",
     "notes" : "Add one user",
     "summary" : "Add one user",
@@ -141,14 +140,16 @@ exports.addOne = {
         "gender": newGender
       }
       db.collection('usercollection').insert(userToAdd, function(err, result) {
-        res.send(
-          (err === null) ? userToAdd : {
-            msg: err
+        if (err === null) {
+            res.status(200).send(JSON.stringify(userToAdd, null, 3));
+          } else {
+            message = errorHandling(500, "unknown error");
+            res.status(500).send(JSON.stringify(message, null, 3));
           }
-        );
       });
     } else {
-      res.send(JSON.stringify("Cannot do that."))
+            message = errorHandling(400, "Bad request.");
+            res.status(400).send(JSON.stringify(message, null, 3));
     }
   }
 };

@@ -6,7 +6,6 @@ var BSON = mongo.BSONPure;
 
 exports.getAll = {
   'spec': {
-    "description" : "Operations about home",
     "path" : "/homes/all",
     "notes" : "Returns all homes",
     "summary" : "Fetch all homes",
@@ -16,14 +15,13 @@ exports.getAll = {
   'action': function (req,res) {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('homecollection').find().toArray(function (err, items) {
-        res.json(items);
+        res.send(JSON.stringify(items, null, 3));
     });
   }
 };
 
 exports.addOne = {
   'spec': {
-    "description" : "Operations about homes",
     "path" : "/homes/add",
     "notes" : "Add one home",
     "summary" : "Add one home",
@@ -78,7 +76,15 @@ exports.addOne = {
         if (newName!=null) {
           homeToAdd = {
             "name": newName,
-            "owner_id": newOwnerID
+            "owner": {
+              "_id": userRes[0]._id,
+              "username": userRes[0].username,
+              "email": userRes[0].email,
+              "fullname": userRes[0].fullname,
+              "age": userRes[0].age,
+              "location": userRes[0].location,
+              "gender": userRes[0].gender
+            }
           }
           callback(null);
         } else {
@@ -86,9 +92,17 @@ exports.addOne = {
         }
       },
       function (callback) {
+      //INCEPTION
         db.collection('homecollection').insert(homeToAdd, function(err, result) {
           if (!err) {
-            callback(null);
+            console.log(result);
+            db.collection('usercollection').update({_id:BSON.ObjectID(newOwnerID)}, {$push: {homes: result[0]._id}}, function (err) {
+              if (!err) {
+                callback(null);
+              } else {
+                callback(400);
+              }
+            });
           } else {
             callback(400);
           }
@@ -110,52 +124,8 @@ exports.addOne = {
             break;
         }
       } else {
-        res.status(200).json(homeToAdd);
+        res.status(200).send(JSON.stringify(homeToAdd, null, 3));
       }
     });
-    // async.series([
-    //   function(callback){
-    //     // do some stuff ...
-    //     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-    //     db.collection('usercollection').find({_id: BSON.ObjectID(newUserID)}).toArray(function (err, result) {
-    //       console.log(result[0]);
-    //       console.log('series 1');
-    //       callback(404);
-    //     });
-    //   },
-    //   function(callback){
-    //     // do some more stuff ...
-    //     console.log('series 2');
-    //     callback(null);
-    //   }
-    // ],
-    // // optional callback
-    // function(err, results){
-    //     // results is now equal to ['one', 'two']
-    //   switch(err) {
-    //     case null:
-    //       res.send(JSON.stringify("test is ok"));
-    //       break;
-    //     case 404:
-    //       res.status(err).send(errorHandling(err, "no message"));
-    //       break;
-    //     default:        
-    //       res.send(JSON.stringify("test is ok"));
-    //   }
-    // });
-
-
-
-    // if (newName && newUserID) {
-    //   var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-
-    //   db.collection('usercollection').find({_id: newUserID}).toArray(function (err, result) {
-    //     console.log(result[0]);
-    //   });
-
-
-    // } else {
-    //   res.send(JSON.stringify("Cannot do that."))
-    // }
   }
 };

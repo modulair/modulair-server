@@ -8,12 +8,12 @@ var router = express.Router();
 /*
  * GET userlist.
  */
-router.get('/userlist', function(req, res) {
-    var db = req.db;
-    db.collection('usercollection').find().toArray(function (err, items) {
-        res.json(items);
-    });
-});
+// router.get('/userlist', function(req, res) {
+//     var db = req.db;
+//     db.collection('usercollection').find().toArray(function (err, items) {
+//         res.json(items);
+//     });
+// });
 /*
  * POST to adduser.
  */

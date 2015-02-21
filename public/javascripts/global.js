@@ -50,15 +50,14 @@ function populateTable() {
     var tableHomeContent = '';
 
     // jQuery AJAX call for JSON
-    $.getJSON('/homes/all', function(homedata) {
+    $.getJSON('http://localhost:3211/v1/homes/all', function(homedata) {
         homeListData = homedata;
         console.log(homeListData);
-
-        // For each item in our JSON, add a table row and cells to the content string
+        var owner_name;
         $.each(homedata, function() {
             tableHomeContent += '<tr>';
             tableHomeContent += '<td><a href="#" class="linkshowhome" rel="' + this.name + '">' + this.name + '</a></td>';
-            tableHomeContent += '<td>' + this.owner + '</td>';
+            tableHomeContent += '<td>' + this.owner.username + '</td>';
             tableHomeContent += '<td><a href="#" class="linkdeletehome" rel="' + this._id + '">delete</a></td>';
             tableHomeContent += '</tr>';
         });
