@@ -9,6 +9,11 @@ var chalk = require('chalk');
 var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
 
+
+//API BASE ROUTE 
+var domain = 'localhost';
+var applicationUrl = 'http://' + domain + ':3211/v1';
+
 var apiIndex = require('./routes/apiIndex');
 //API SERVER
 var api = express();
@@ -24,12 +29,15 @@ api.use(cookieParser());
 api.use(bodyParser.urlencoded({ extended: false }));
 //swagger
 api.use("/v1", subpath);
+//swagger and resources
 var swagger = require('swagger-node-express').createNew(subpath)
     , test = require("./models/test")
     , models = require("./models/models")
     , userResources = require('./resources/userResources')
     , homeResources = require('./resources/homeResources')
     , systemResources = require('./resources/systemResources');
+
+//swagger validation
 // swagger.addValidator(
 //   function validate(req, path, httpMethod) {
 //     //  example, only allow POST for api_key="special-key"
@@ -46,6 +54,10 @@ var swagger = require('swagger-node-express').createNew(subpath)
 //     return true;
 //   }
 // );
+
+//SWAGGER start
+swagger.configure(applicationUrl, '0.1.0');
+
 swagger.setApiInfo({
     title: "Modulair API",
     description: "API to manage Modulair systems",
@@ -71,9 +83,14 @@ swagger.addModels(models)
 // Set api-doc path
 swagger.configureSwaggerPaths('', 'api-docs', '');
 
-var domain = 'localhost';
-var applicationUrl = 'http://' + domain + ':3211/v1';
-swagger.configure(applicationUrl, '0.1.0');
+// Set header and X-Origin
+swagger.setHeaders = function setHeaders(res) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type, X-API-KEY");
+  res.header("Content-Type", "application/json; charset=utf-8");
+};
+
+
 
 var api_handler = express.static(path.join(__dirname, 'node_modules/swagger-node-express/swagger-ui'));
 

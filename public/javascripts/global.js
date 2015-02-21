@@ -31,7 +31,7 @@ function populateTable() {
     var tableContent = '';
 
     // jQuery AJAX call for JSON
-    $.getJSON('/users/userlist', function(data) {
+    $.getJSON('http://localhost:3211/v1/users/all', function(data) {
         userListData = data;
 
         // For each item in our JSON, add a table row and cells to the content string

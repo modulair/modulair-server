@@ -48,10 +48,10 @@ exports.getOneById = {
         }
       },
       function (callback) {
-        // do some more stuff ...
         db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
           if (!err) {
             userRes = items;
+            console.log(items);
             callback(null);
           } else {
             callback(400);
@@ -88,18 +88,6 @@ exports.getOneById = {
         res.status(200).json(userRes[0]);
       }
     });
-    // var BSON_id = BSON.ObjectID(user_id);
-    // console.log(BSON_id);
-    // var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-    // // console.log(user_id);
-    // // res.send(JSON.stringify(req.params));
-    // db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
-    //   if (!err) {
-    //     res.json(items);
-    //   } else {
-    //     res.send(err);
-    //   }
-    // });
   }
 };
 
