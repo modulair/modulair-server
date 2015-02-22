@@ -178,6 +178,7 @@ exports.deleteOneById = {
       },
       function (callback) {
         db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
+        //stash the user data
           if (!err) {
             if (items.length<=0) {
               callback(404);
@@ -193,6 +194,7 @@ exports.deleteOneById = {
         });        
       },
       function (callback) {
+      //delete the particular user
         db.collection('usercollection').remove({_id:BSON.ObjectID(user_id)}, function (err, items) {
           if (!err) {
             callback(null);
@@ -202,6 +204,7 @@ exports.deleteOneById = {
         });
       },
       function (callback) {
+      //delete the homes associated
         if (!userRes.homes) {
           callback(null);
         } else {
