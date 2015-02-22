@@ -151,7 +151,9 @@ exports.addOne = {
               "name": newName
             },
             "owner_id": userRes[0]._id,
-            "owner_identity": userRes[0].identity
+            "owner_identity": userRes[0].identity,
+            "created": Date.now(),
+            "updated": Date.now()
           }
           callback(null);
         } else {
@@ -162,7 +164,7 @@ exports.addOne = {
       //INCEPTION
         db.collection('homecollection').insert(homeToAdd, function(err, result) {
           if (!err) {
-            db.collection('usercollection').update({_id:BSON.ObjectID(newOwnerID)}, {$push: {homes: {home_id: result[0]._id, home_name:result[0].identity.name}}}, function (err) {
+            db.collection('usercollection').update({_id:BSON.ObjectID(newOwnerID)}, {$push: {homes: {home_id: result[0]._id, home_name:result[0].identity.name}}, $set: {updated: Date.now()}}, function (err) {
               if (!err) {
                 callback(null);
               } else {
@@ -237,7 +239,6 @@ exports.deleteOneById = {
             } else if (userRes.length > 1) {
               callback(400); 
             } else {
-              console.log(userRes[0]);
               callback(null);
             }
           } else {
@@ -264,7 +265,7 @@ exports.deleteOneById = {
       function (callback) {
         db.collection('homecollection').remove({_id:BSON.ObjectID(home_id)}, function (err, items) {
           if (!err) {
-            db.collection('usercollection').update({_id:BSON.ObjectID(owner_id)}, {$set: {homes: homesArray}}, function (err) {
+            db.collection('usercollection').update({_id:BSON.ObjectID(owner_id)}, {$set: {homes: homesArray, updated:Date.now()}}, function (err) {
               if (!err) {
                 callback(null);
               } else {

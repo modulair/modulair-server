@@ -4,6 +4,7 @@ var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandl
 var BSON = mongo.BSONPure;
 var async = require('async');
 
+//GET
 exports.getAll = {
   'spec': {
     path : "/users/all",
@@ -91,6 +92,7 @@ exports.getOneById = {
   }
 };
 
+//POST
 exports.addOne = {
   'spec': {
     "path" : "/users/add",
@@ -127,7 +129,9 @@ exports.addOne = {
           "age": newAge,
           "location": newLocation,
           "gender": newGender
-        }
+        },
+        "created": Date.now(),
+        "updated": Date.now()
       }
       db.collection('usercollection').insert(userToAdd, function(err, result) {
         if (err === null) {
@@ -141,5 +145,100 @@ exports.addOne = {
             message = errorHandling(400, "Bad request.");
             res.status(400).send(JSON.stringify(message, null, 3));
     }
+  }
+};
+
+//PUT
+
+
+//DELETE
+exports.deleteOneById = {
+  'spec': {
+    "path" : "/users/id/{user_id}",
+    "notes" : "Deletes one user",
+    "summary" : "Deletes one user by ID",
+    "method": "DELETE",
+    "parameters" : [
+      params.path("user_id", "user ID of user", "string")
+      ],
+    "nickname" : "deleteOneByIdUser"
+  },
+  'action': function (req,res) {
+    var user_id = req.params.user_id || req.query.user_id;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    var userRes;
+    async.series([
+      function (callback) {
+      // check if string is ObjectID
+        if (/^[0-9a-f]{24}$/.test(user_id)) {
+          callback(null);
+        } else {
+          callback(400);
+        }
+      },
+      function (callback) {
+        db.collection('usercollection').find({_id:BSON.ObjectID(user_id)}).toArray(function (err, items) {
+          if (!err) {
+            if (items.length<=0) {
+              callback(404);
+            } else if (items.length > 1) {
+              callback(400); 
+            } else {
+              userRes = items[0];
+              callback(null);
+            }
+          } else {
+            callback(400);
+          }
+        });        
+      },
+      function (callback) {
+        db.collection('usercollection').remove({_id:BSON.ObjectID(user_id)}, function (err, items) {
+          if (!err) {
+            callback(null);
+          } else {
+            callback(400);
+          }
+        });
+      },
+      function (callback) {
+        if (!userRes.homes) {
+          callback(null);
+        } else {
+          if (userRes.homes.length <= 1) {
+            callback(null);
+          }
+          for (var i = 0; i < userRes.homes.length; i++) {
+            db.collection('homecollection').remove({_id:BSON.ObjectID(userRes.homes[i].home_id)}, function (err, items) {
+              if (err) {
+                callback(400);
+              }
+            });
+          }
+          callback(null);
+        }
+      }
+    ],
+    // optional callback
+    function (err, results) {
+      if (err) {
+        switch(err) {
+          case 400:
+            message = errorHandling(err, "Bad request.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          case 404:
+            message = errorHandling(err, "Not found.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          default:        
+            message = errorHandling(err, "Unknown error.");
+            res.status(500).send(JSON.stringify(message, null, 3));
+            break;
+        }
+      } else {
+        res.status(200).send(JSON.stringify("User has been successfully deleted.", null, 3));
+      }
+    });
   }
 };
