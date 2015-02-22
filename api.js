@@ -56,7 +56,9 @@ swagger.addModels(models)
     .addPost(userResources.addOne)
     //HOME RESOURCES
     .addGet(homeResources.getAll)
+    .addGet(homeResources.getOneById)
     .addPost(homeResources.addOne)
+    .addDelete(homeResources.deleteOneById)
     //SYSTEM RESOURCES
     .addGet(systemResources.getAll)
     .addPost(systemResources.addOne);

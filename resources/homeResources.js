@@ -4,6 +4,7 @@ var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandl
 var async = require('async');
 var BSON = mongo.BSONPure;
 
+//GET
 exports.getAll = {
   'spec': {
     "path" : "/homes/all",
@@ -20,6 +21,77 @@ exports.getAll = {
   }
 };
 
+exports.getOneById = {
+  'spec': {
+    "path" : "/homes/id/{home_id}",
+    "notes" : "Returns one home",
+    "summary" : "Returns one home by ID",
+    "method": "GET",
+    "parameters" : [
+      params.path("home_id", "home ID to get", "string")
+      ],
+    "nickname" : "getOneByIdHome"
+  },
+  'action': function (req,res) {
+    var home_id = req.params.home_id || req.query.home_id;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    var homeRes;
+    async.series([
+      function (callback) {
+      // check if string is ObjectID
+        if (/^[0-9a-f]{24}$/.test(home_id)) {
+          callback(null);
+        } else {
+          callback(400);
+        }
+      },
+      function (callback) {
+        db.collection('homecollection').find({_id:BSON.ObjectID(home_id)}).toArray(function (err, items) {
+          if (!err) {
+            homeRes = items;
+            callback(null);
+          } else {
+            callback(400);
+          }
+        });
+      },
+      function (callback) {
+        if (homeRes.length <= 0) {
+          callback(404);
+        } else {
+          if (homeRes.length > 1) {
+            callback(400);
+          } else {
+            callback(null);
+          }
+        }
+      }
+    ],
+    // optional callback
+    function (err, results) {
+      if (err) {
+        switch(err) {
+          case 400:
+            message = errorHandling(err, "Bad request.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          case 404:
+            message = errorHandling(err, "Not found.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          default:        
+            message = errorHandling(err, "Unknown error.");
+            res.status(500).send(JSON.stringify(message, null, 3));
+            break;
+        }
+      } else {
+        res.status(200).send(JSON.stringify(homeRes[0], null, 3));
+      }
+    });
+  }
+};
+
+//POST
 exports.addOne = {
   'spec': {
     "path" : "/homes/add",
@@ -75,16 +147,11 @@ exports.addOne = {
       function (callback) {
         if (newName!=null) {
           homeToAdd = {
-            "name": newName,
-            "owner": {
-              "_id": userRes[0]._id,
-              "username": userRes[0].username,
-              "email": userRes[0].email,
-              "fullname": userRes[0].fullname,
-              "age": userRes[0].age,
-              "location": userRes[0].location,
-              "gender": userRes[0].gender
-            }
+            "identity": {
+              "name": newName
+            },
+            "owner_id": userRes[0]._id,
+            "owner_identity": userRes[0].identity
           }
           callback(null);
         } else {
@@ -95,8 +162,7 @@ exports.addOne = {
       //INCEPTION
         db.collection('homecollection').insert(homeToAdd, function(err, result) {
           if (!err) {
-            console.log(result);
-            db.collection('usercollection').update({_id:BSON.ObjectID(newOwnerID)}, {$push: {homes: result[0]._id}}, function (err) {
+            db.collection('usercollection').update({_id:BSON.ObjectID(newOwnerID)}, {$push: {homes: {home_id: result[0]._id, home_name:result[0].identity.name}}}, function (err) {
               if (!err) {
                 callback(null);
               } else {
@@ -125,6 +191,112 @@ exports.addOne = {
         }
       } else {
         res.status(200).send(JSON.stringify(homeToAdd, null, 3));
+      }
+    });
+  }
+};
+
+
+//DELETE
+exports.deleteOneById = {
+  'spec': {
+    "path" : "/homes/id/{home_id}",
+    "notes" : "Deletes one home",
+    "summary" : "Deletes one home by ID",
+    "method": "DELETE",
+    "parameters" : [
+      params.path("home_id", "home ID to delete", "string"),
+      params.query("owner_id", "owner ID of NEW home", "string", true)
+      ],
+    "nickname" : "deleteOneByIdHome"
+  },
+  'action': function (req,res) {
+    var home_id = req.params.home_id || req.query.home_id;
+    var owner_id = req.params.owner_id || req.query.owner_id;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    var homeRes;
+    var userRes;
+    var homesArray;
+    async.series([
+      function (callback) {
+      // check if string is ObjectID
+        if (/^[0-9a-f]{24}$/.test(home_id) && /^[0-9a-f]{24}$/.test(owner_id)) {
+          callback(null);
+        } else {
+          callback(400);
+        }
+      },
+      function (callback) {
+        db.collection('usercollection').find({_id:BSON.ObjectID(owner_id)}).toArray(function (err, items) {
+          if (!err) {
+            // console.log(items);
+            userRes = items;
+            console.log(items);
+            if (userRes.length<=0) {
+              callback(404);
+            } else if (userRes.length > 1) {
+              callback(400); 
+            } else {
+              console.log(userRes[0]);
+              callback(null);
+            }
+          } else {
+            callback(400);
+          }
+        });        
+      },
+      function (callback) {
+        if (userRes[0].homes.length <= 0) {
+          callback(404);
+        } else {
+          for (var i = 0; i < userRes[0].homes.length; i++) {
+            if (userRes[0].homes[i].home_id == home_id) {
+              userRes[0].homes.splice(i,1);
+              homesArray = userRes[0].homes;
+              console.log(homesArray);
+              callback(null);
+            } else if (i >= userRes[0].homes.length) {
+              callback(404);
+            }
+          }
+        }
+      },
+      function (callback) {
+        db.collection('homecollection').remove({_id:BSON.ObjectID(home_id)}, function (err, items) {
+          if (!err) {
+            db.collection('usercollection').update({_id:BSON.ObjectID(owner_id)}, {$set: {homes: homesArray}}, function (err) {
+              if (!err) {
+                callback(null);
+              } else {
+                callback(400);
+              }
+            });
+          } else {
+            callback(400);
+          }
+        });
+      }
+      
+    ],
+    // optional callback
+    function (err, results) {
+      if (err) {
+        switch(err) {
+          case 400:
+            message = errorHandling(err, "Bad request.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          case 404:
+            message = errorHandling(err, "Not found.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          default:        
+            message = errorHandling(err, "Unknown error.");
+            res.status(500).send(JSON.stringify(message, null, 3));
+            break;
+        }
+      } else {
+        res.status(200).send(JSON.stringify("Home has been successfully deleted.", null, 3));
       }
     });
   }

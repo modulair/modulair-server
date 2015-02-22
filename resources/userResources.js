@@ -110,18 +110,6 @@ exports.addOne = {
     "nickname" : "addOneUser"
   },
   'action': function (req,res) {
-    // var db = mongo.db("mongodb://localhost:27017/scratch-test", {
-    //   native_parser: true
-    // });http://swagger.io/
-    // db.collection('usercollection').insert(req.body, function(err, result) {
-    //   res.send(
-    //     (err === null) ? {
-    //       msg: ''
-    //     } : {
-    //       msg: err
-    //     }
-    //   );
-    // });
     var newUsername = req.query.username || req.body.username || '';
     var newEmail = req.query.email || req.body.email || '';
     var newFullname = req.query.fullname || req.body.fullname || '';
@@ -132,12 +120,14 @@ exports.addOne = {
     if (newUsername && newEmail && newFullname && newAge && newLocation && newGender) {
       var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
       var userToAdd = {
-        "username": newUsername,
-        "email": newEmail,
-        "fullname": newFullname,
-        "age": newAge,
-        "location": newLocation,
-        "gender": newGender
+        "identity": {
+          "username": newUsername,
+          "email": newEmail,
+          "fullname": newFullname,
+          "age": newAge,
+          "location": newLocation,
+          "gender": newGender
+        }
       }
       db.collection('usercollection').insert(userToAdd, function(err, result) {
         if (err === null) {
@@ -153,35 +143,3 @@ exports.addOne = {
     }
   }
 };
-
-// exports.findById = {
-//   'spec': {
-//     "description" : "Operations about pets",
-//     "path" : "/pet.{format}/{petId}",
-//     "notes" : "Returns a pet based on ID",
-//     "summary" : "Find pet by ID",
-//     "method": "GET",
-//     "parameters" : [
-//       param.path("username", "NEW username", "string"),
-//       param.path("email", "NEW email", "string"),
-//       param.path("fullname", "NEW fullname", "string"),
-//       param.path("age", "NEW age", "string"),
-//       param.path("location", "NEW location", "string"),
-//       param.path("gender", "NEW gender", "string"),
-
-//       ],
-//     "type" : "Pet",
-//     "nickname" : "getPetById"
-//   },
-//   'action': function (req,res) {
-
-//   //   { username: 'a',
-//   // email: 's',
-//   // fullname: 'd',
-//   // age: '2',
-//   // location: 'f',
-//   // gender: 'g' }
-
-
-//   }
-// };
