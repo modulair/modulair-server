@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  h1 Registration
+  p Register to our system
+  form#formAddUser(name="adduser",method="post",action="/register")
+    input#inputUserName(type="text", placeholder="username", name="username")
+
+    input#inputUserEmail(type="text", placeholder="email", name="email")
+
+    input#inputUserFullName(type="text", placeholder="fullname", name="fullname")
+
+    input#inputUserAge(type="text", placeholder="age", name="age")
+
+    input#inputUserLocation(type="text", placeholder="location", name="location")
+
+    input#inputUserGender(type="text", placeholder="gender", name="gender")
+      
+    button#btnSubmit(type="submit") submit

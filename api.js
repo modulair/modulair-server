@@ -18,6 +18,7 @@ var apiIndex = require('./routes/apiIndex');
 //API SERVER
 var api = express();
 var subpath = express();
+
 // view engine setup
 api.set('views', path.join(__dirname, 'views'));
 api.set('view engine', 'jade');
@@ -47,7 +48,7 @@ swagger.setApiInfo({
     licenseUrl: ""
 });
 
-swagger.addModels(models)
+swagger
     //TEST
     .addGet(test.dummyTestMethod)
     //USER RESOURCES
@@ -62,7 +63,8 @@ swagger.addModels(models)
     .addDelete(homeResources.deleteOneById)
     //SYSTEM RESOURCES
     .addGet(systemResources.getAll)
-    .addPost(systemResources.addOne);
+    .addPost(systemResources.addOne)
+    .addDelete(systemResources.deleteOneById);
 
 
 // Set api-doc path
@@ -81,15 +83,23 @@ swagger.configureDeclaration('homes', {
     description: 'Operations about Homes',
     protocols : ["http"]
 });
+swagger.configureDeclaration('systems', {
+    description: 'Operations about Systems',
+    protocols : ["http"]
+});
+swagger.configureDeclaration('subsystems', {
+    description: 'Operations about Subsystems',
+    protocols : ["http"]
+});
 
 // Set header and X-Origin CORS FYEA
 swagger.setHeaders = function setHeaders(res) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-Type, X-API-KEY");
+  res.header("Access-Control-Allow-Headers", "Content-Type,Accept,X-Access-Token,X-key");
   res.header("Content-Type", "application/json; charset=utf-8");
 };
 
-    
+
 // swagger.addValidator(
 //   function validate(req, path, httpMethod) {
 //     //  example, only allow POST for api_key="special-key"
@@ -99,7 +109,7 @@ swagger.setHeaders = function setHeaders(res) {
 //         apiKey = url.parse(req.url,true).query["api_key"];
 //       }
 //       if ("special-key" == apiKey) {
-//         return true; 
+//         return true;
 //       }
 //       return false;
 //     }

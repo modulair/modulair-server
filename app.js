@@ -10,11 +10,6 @@ var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
-var homes = require('./routes/homes');
-var systems = require('./routes/systems');
-var subsystems = require('./routes/subsystems');
-var apiIndex = require('./routes/apiIndex');
 
 //APP SERVER
 var app = express();
@@ -39,10 +34,6 @@ app.use(function (req, res, next) {
 // app.use('/api', subpath);
 app.use('/swagger', express.static(path.join(__dirname, 'node_modules/swagger-node-express/swagger-ui')));
 app.use('/', routes);
-app.use('/users', users);
-app.use('/homes', homes);
-app.use('/systems', systems);
-app.use('/subsystems', subsystems);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

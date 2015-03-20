@@ -118,7 +118,6 @@ exports.addOne = {
     var newAge = req.query.age || req.body.age || undefined;
     var newLocation = req.query.location || req.body.location || '';
     var newGender = req.query.gender || req.body.gender || '';
-    console.log('database: ' + req.db);
     if (newUsername && newEmail && newFullname && newAge && newLocation && newGender) {
       var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
       var userToAdd = {

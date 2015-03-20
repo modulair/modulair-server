@@ -79,7 +79,7 @@ exports.getOneById = {
             message = errorHandling(err, "Not found.");
             res.status(err).send(JSON.stringify(message, null, 3));
             break;
-          default:        
+          default:
             message = errorHandling(err, "Unknown error.");
             res.status(500).send(JSON.stringify(message, null, 3));
             break;
@@ -187,7 +187,7 @@ exports.addOne = {
           case 404:
             res.status(err).send(errorHandling(err, "Not found."));
             break;
-          default:        
+          default:
             res.status(500).send(JSON.stringify("Unknown error."));
             break;
         }
@@ -216,6 +216,7 @@ exports.deleteOneById = {
     var home_id = req.params.home_id || req.query.home_id;
     var owner_id = req.params.owner_id || req.query.owner_id;
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+
     var homeRes;
     var userRes;
     var homesArray;
@@ -237,14 +238,14 @@ exports.deleteOneById = {
             if (userRes.length<=0) {
               callback(404);
             } else if (userRes.length > 1) {
-              callback(400); 
+              callback(400);
             } else {
               callback(null);
             }
           } else {
             callback(400);
           }
-        });        
+        });
       },
       function (callback) {
         if (userRes[0].homes.length <= 0) {
@@ -277,7 +278,7 @@ exports.deleteOneById = {
           }
         });
       }
-      
+
     ],
     // optional callback
     function (err, results) {
@@ -291,7 +292,7 @@ exports.deleteOneById = {
             message = errorHandling(err, "Not found.");
             res.status(err).send(JSON.stringify(message, null, 3));
             break;
-          default:        
+          default:
             message = errorHandling(err, "Unknown error.");
             res.status(500).send(JSON.stringify(message, null, 3));
             break;
