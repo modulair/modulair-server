@@ -6,17 +6,17 @@ var BSON = mongo.BSONPure;
 
 exports.getAll = {
   'spec': {
-    "description" : "Operations about systems",
-    "path" : "/systems/all",
-    "notes" : "Returns all systems",
-    "summary" : "Fetch all systems",
+    "description" : "Operations about subsystems",
+    "path" : "/subsystems/all",
+    "notes" : "Returns all subsystems",
+    "summary" : "Fetch all subsystems",
     "method": "GET",
-    "nickname" : "getAllSystem"
+    "nickname" : "getAllSubsystem"
   },
   'action': function (req,res) {
     console.log(req.db);
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-    db.collection('systemcollection').find().toArray(function (err, items) {
+    db.collection('subsystemcollection').find().toArray(function (err, items) {
       if (items!=[]) {
         res.json(items);
       } else {
@@ -29,46 +29,49 @@ exports.getAll = {
 
 exports.addOne = {
   'spec': {
-    "path" : "/systems/add",
-    "notes" : "Add one system",
-    "summary" : "Add one system",
+    "path" : "/subsystems/add",
+    "notes" : "Add one subsystem",
+    "summary" : "Add one subsystem",
     "method": "POST",
     "parameters" : [
-      params.query("name", "name of NEW system", "string", true),
-      params.query("home_id", "home ID of NEW system", "string", true)
+      params.query("name", "name of NEW subsystem", "string", true),
+      params.query("interface", "interface of NEW subsystem", "string", true),
+      params.query("system_id", "system ID of NEW subsystem", "string", true)
       ],
     "responseClass": "",
     "errorResponses": [],
-    "nickname" : "addOneSystem"
+    "nickname" : "addOneSubsystem"
   },
   'action': function (req,res) {
     var newName = req.query.name || req.body.name || '';
-    var newHomeID = req.query.home_id || req.body.home_id || '';
-    var systemToAdd;
-    var homeRes;
+    var newInterface = req.query.interface || req.body.interface || '';
+    var newSystemID = req.query.system_id || req.body.system_id || '';
+    var subsystemToAdd;
+    var systemRes;
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
 
     async.series([
       function (callback) {
       // check if string is ObjectID
-        if (/^[0-9A-Fa-f]{24}$/.test(newHomeID)) {
+        if (/^[0-9A-Fa-f]{24}$/.test(newSystemID)) {
           callback(null);
         } else {
           callback(400);
         }
       },
       function (callback) {
-        db.collection('homecollection').find({_id:BSON.ObjectID(newHomeID)}).toArray(function (err, items) {
+        db.collection('systemcollection').find({_id:BSON.ObjectID(newSystemID)}).toArray(function (err, items) {
           if (!err) {
             // console.log(items);
-            homeRes = items;
-            if (homeRes.length <= 0) {
+            systemRes = items;
+            console.log(systemRes);
+            if (systemRes.length <= 0) {
               callback(404);
             } else {
-              if (homeRes.length > 1) {
+              if (systemRes.length > 1) {
                 callback(400);
               } else {
-                //only 1 user found
+                //only 1 system found
                 callback(null);
               }
             }
@@ -78,13 +81,16 @@ exports.addOne = {
         });
       },
       function (callback) {
-        if (newName!=null) {
-          systemToAdd = {
+        if (newName!=null && newName!=null) {
+          subsystemToAdd = {
             "identity": {
               "name": newName
             },
-            "home_id": homeRes[0]._id,
-            "home_identity": homeRes[0].identity,
+            "interface": newInterface,
+            "system_id": systemRes[0]._id,
+            "system_identity": systemRes[0].identity,
+            "state": {},
+            "desired_state": {},
             "created": Date.now(),
             "updated": Date.now()
           }
@@ -95,9 +101,9 @@ exports.addOne = {
       },
       function (callback) {
       //INCEPTION
-        db.collection('systemcollection').insert(systemToAdd, function(err, result) {
+        db.collection('subsystemcollection').insert(subsystemToAdd, function(err, result) {
           if (!err) {
-            db.collection('homecollection').update({_id:BSON.ObjectID(newHomeID)}, {$push: {systems: {system_id: result[0]._id, system_name:result[0].identity.name}}, $set: {updated: Date.now()}}, function (err) {
+            db.collection('systemcollection').update({_id:BSON.ObjectID(newSystemID)}, {$push: {subsystems: {subsystem_id: result[0]._id, subsystem_name:result[0].identity.name}}, $set: {updated: Date.now()}}, function (err) {
               if (!err) {
                 callback(null);
               } else {
@@ -128,24 +134,6 @@ exports.addOne = {
         res.status(200).send(JSON.stringify("OK"));
       }
     });
-
-    // if (newUsername && newHomeID) {
-    //   var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-    //   var systemToAdd = {
-    //     "name": newName,
-    //     "home_id": newHomeID
-    //   }
-    //
-    //   db.collection('systemcollection').insert(systemToAdd, function(err, result) {
-    //     res.send(
-    //       (err === null) ? systemToAdd : {
-    //         msg: err
-    //       }
-    //     );
-    //   });
-    // } else {
-    //   res.send(JSON.stringify("Cannot do that."))
-    // }
   }
 };
 
@@ -153,31 +141,33 @@ exports.addOne = {
 //DELETE
 exports.deleteOneById = {
   'spec': {
-    "path" : "/systems/id/{system_id}",
-    "notes" : "Deletes one system",
-    "summary" : "Deletes one system by ID",
+    "path" : "/subsystems/id/{subsystem_id}",
+    "notes" : "Deletes one subsystem",
+    "summary" : "Deletes one subsystem by ID",
     "method": "DELETE",
     "parameters" : [
-      params.path("system_id", "system ID to delete", "string"),
-      params.query("owner_id", "owner ID of NEW home", "string", true)
+      params.path("subsystem_id", "subsystem ID to delete", "string"),
+      params.query("owner_id", "owner ID of subsystem", "string", true)
       ],
-    "nickname" : "deleteOneByIdSystem"
+    "nickname" : "deleteOneByIdSubsystem"
   },
   'action': function (req,res) {
-    var system_id = req.params.system_id || req.query.system_id;
+    var subsystem_id = req.params.subsystem_id || req.query.subsystem_id;
     var owner_id = req.params.owner_id || req.query.owner_id;
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
 
+    var system_id;
+    var subsystemRes;
     var systemRes;
     var homeRes;
     var userRes;
-    var systemsArray;
-    var home_id;
+    var subsystemsArray;
+
     async.series([
       function (callback) {
       // check if string is ObjectID
       console.log('1.ObjectID Testing');
-        if (/^[0-9a-f]{24}$/.test(system_id) && /^[0-9a-f]{24}$/.test(owner_id)) {
+        if (/^[0-9a-f]{24}$/.test(subsystem_id) && /^[0-9a-f]{24}$/.test(owner_id)) {
           callback(null);
         } else {
           callback(400);
@@ -195,6 +185,26 @@ exports.deleteOneById = {
             } else if (userRes.length > 1) {
               callback(400);
             } else {
+              callback(null);
+            }
+          } else {
+            callback(400);
+          }
+        });
+      },
+      function (callback) {
+      console.log('3.Fetching Subsystem');
+        db.collection('subsystemcollection').find({_id:BSON.ObjectID(subsystem_id)}).toArray(function (err, items) {
+          if (!err) {
+            // console.log(items);
+            subsystemRes = items;
+            console.log(subsystemRes);
+            if (subsystemRes.length<=0) {
+              callback(404);
+            } else if (subsystemRes.length > 1) {
+              callback(400);
+            } else {
+              system_id = subsystemRes[0].system_id;
               callback(null);
             }
           } else {
@@ -228,23 +238,8 @@ exports.deleteOneById = {
         } else {
           console.log(userRes[0].homes);
           for (var i = 0; i < userRes[0].homes.length; i++) {
-            console.log(userRes[0].homes[i].home_id);
-            console.log(systemRes[0].home_id);
-            console.log(String(userRes[0].homes[i].home_id).length);
-            console.log(String(systemRes[0].home_id).length);
-            console.log(String(userRes[0].homes[i].home_id) == String(systemRes[0].home_id));
-            // homey_id = userRes[0].homes[i].home_id;
-            // console.log(homey_id);
-            // console.log(homey_id == userRes[0].homes[i].home_id);
-            // console.log(homey_id == systemRes[0].home_id);
-            //
-            // console.log(homez_id);
-            // console.log(homez_id == homey_id);
-            // console.log(new String(systemRes[0].home_id) == new String(userRes[0].homes[i].home_id));
-            // console.log(new String(systemRes[0].home_id) === new String(userRes[0].homes[i].home_id));
             if (String(userRes[0].homes[i].home_id) == String(systemRes[0].home_id)) {
               console.log('same');
-              home_id = systemRes[0].home_id;
               callback(null);
             } else if (i >= userRes[0].homes.length) {
               callback(404);
@@ -253,36 +248,17 @@ exports.deleteOneById = {
         }
       },
       function (callback) {
-      console.log('5.Fetching Home');
-        db.collection('homecollection').find({_id:BSON.ObjectID(home_id)}).toArray(function (err, items) {
-          if (!err) {
-            // console.log(items);
-            homeRes = items;
-            console.log(items);
-            if (systemRes.length<=0) {
-              callback(404);
-            } else if (systemRes.length > 1) {
-              callback(400);
-            } else {
-              callback(null);
-            }
-          } else {
-            callback(400);
-          }
-        });
-      },
-      function (callback) {
       console.log('6.Splicing System');
-        if (homeRes[0].systems.length <= 0) {
+        if (systemRes[0].subsystems.length <= 0) {
           callback(404);
         } else {
-          for (var i = 0; i < homeRes[0].systems.length; i++) {
-            if (homeRes[0].systems[i].system_id == system_id) {
-              homeRes[0].systems.splice(i,1);
-              systemsArray = homeRes[0].systems;
-              console.log(systemsArray);
+          for (var i = 0; i < systemRes[0].subsystems.length; i++) {
+            if (systemRes[0].subsystems[i].subsystem_id == subsystem_id) {
+              systemRes[0].subsystems.splice(i,1);
+              subsystemsArray = systemRes[0].subsystems;
+              console.log(subsystemsArray);
               callback(null);
-            } else if (i >= homeRes[0].systems.length) {
+            } else if (i >= systemRes[0].subsystems.length) {
               callback(404);
             }
           }
@@ -290,9 +266,9 @@ exports.deleteOneById = {
       },
       function (callback) {
       console.log('7.System Removal');
-        db.collection('systemcollection').remove({_id:BSON.ObjectID(system_id)}, function (err, items) {
+        db.collection('subsystemcollection').remove({_id:BSON.ObjectID(subsystem_id)}, function (err, items) {
           if (!err) {
-            db.collection('homecollection').update({_id:BSON.ObjectID(home_id)}, {$set: {systems: systemsArray, updated:Date.now()}}, function (err) {
+            db.collection('systemcollection').update({_id:BSON.ObjectID(system_id)}, {$set: {subsystems: subsystemsArray, updated:Date.now()}}, function (err) {
               if (!err) {
                 callback(null);
               } else {
@@ -324,7 +300,7 @@ exports.deleteOneById = {
             break;
         }
       } else {
-        res.status(200).send(JSON.stringify("System has been successfully deleted.", null, 3));
+        res.status(200).send(JSON.stringify("Subsystem has been successfully deleted.", null, 3));
       }
     });
   }

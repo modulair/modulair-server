@@ -36,7 +36,8 @@ var swagger = require('swagger-node-express').createNew(subpath)
     , models = require("./models/models")
     , userResources = require('./resources/userResources')
     , homeResources = require('./resources/homeResources')
-    , systemResources = require('./resources/systemResources');
+    , systemResources = require('./resources/systemResources')
+    , subsystemResources = require('./resources/subsystemResources');
 
 
 swagger.setApiInfo({
@@ -64,7 +65,11 @@ swagger
     //SYSTEM RESOURCES
     .addGet(systemResources.getAll)
     .addPost(systemResources.addOne)
-    .addDelete(systemResources.deleteOneById);
+    .addDelete(systemResources.deleteOneById)
+    //SYSTEM RESOURCES
+    .addGet(subsystemResources.getAll)
+    .addPost(subsystemResources.addOne)
+    .addDelete(subsystemResources.deleteOneById);
 
 
 // Set api-doc path
