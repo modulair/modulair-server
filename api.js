@@ -123,7 +123,7 @@ swagger.setHeaders = function setHeaders(res) {
 // );
 
 
-var api_handler = express.static(path.join(__dirname, 'node_modules/swagger-node-express/swagger-ui'));
+var api_handler = express.static(path.join(__dirname, 'swagger-ui'));
 
 api.get(/^\/docs(\/.*)?$/, function(req, res, next) {
       if (req.url === '/docs') { // express static barfs on root url w/o trailing slash
