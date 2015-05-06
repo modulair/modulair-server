@@ -10,6 +10,9 @@ var chalk = require('chalk');
 var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
 
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost:27017/scratch-test');
+
 //BASE ROUTE
 var domain = 'localhost';
 var applicationUrl = 'http://' + domain + ':3211/v1';
@@ -18,6 +21,9 @@ var apiIndex = require('./routes/apiIndex');
 //API SERVER
 var api = express();
 var subpath = express();
+
+//MODELS
+var Home = require('./models/home');
 
 // view engine setup
 api.set('views', path.join(__dirname, 'views'));
@@ -28,7 +34,7 @@ api.use(favicon(__dirname + '/public/favicon.ico'));
 api.use(logger('dev'));
 api.use(bodyParser.json());
 api.use(cookieParser());
-api.use(bodyParser.urlencoded({ extended: false }));
+api.use(bodyParser.urlencoded({ extended: true }));
 //swagger
 api.use("/v1", subpath);
 var swagger = require('swagger-node-express').createNew(subpath)
@@ -61,6 +67,7 @@ swagger
     .addGet(homeResources.getAll)
     .addGet(homeResources.getOneById)
     .addPost(homeResources.addOne)
+    .addPost(homeResources.addOneMongoose)
     .addDelete(homeResources.deleteOneById)
     //SYSTEM RESOURCES
     .addGet(systemResources.getAll)

@@ -22,7 +22,7 @@ async.series([
           case 404:
             res.status(err).send(errorHandling(err, "Not found."));
             break;
-          default:        
+          default:
             res.status(500).send(JSON.stringify("Unknown error."));
             break;
         }

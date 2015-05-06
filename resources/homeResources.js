@@ -4,6 +4,12 @@ var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandl
 var async = require('async');
 var BSON = mongo.BSONPure;
 
+var mongoose = require('mongoose');
+var Home = require('../models/home');
+
+var io = require('socket.io-client')('http://localhost:3211');
+
+// var io = require('../ioInstance').io;
 //GET
 exports.getAll = {
   'spec': {
@@ -14,6 +20,7 @@ exports.getAll = {
     "nickname" : "getAllHome"
   },
   'action': function (req,res) {
+    io.emit('getAll', { content: 'get all called.', timestamp: Date.now()});
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('homecollection').find().toArray(function (err, items) {
         res.send(JSON.stringify(items, null, 3));
@@ -69,6 +76,8 @@ exports.getOneById = {
     ],
     // optional callback
     function (err, results) {
+      // io.emit('getone',{content: 'get one by id called', timestamp: Date.now()});
+
       if (err) {
         switch(err) {
           case 400:
@@ -85,6 +94,7 @@ exports.getOneById = {
             break;
         }
       } else {
+        io.emit('getonecall', { content: 'get one by id called.', timestamp: Date.now(), home_id: homeRes[0]._id});
         res.status(200).send(JSON.stringify(homeRes[0], null, 3));
       }
     });
@@ -197,7 +207,35 @@ exports.addOne = {
     });
   }
 };
+exports.addOneMongoose = {
+  'spec': {
+    "path" : "/homes/addMongoose",
+    "notes" : "Add one home Mongoose",
+    "summary" : "Add one home Mongoose",
+    "method": "POST",
+    "parameters" : [
+      params.query("name", "name of NEW home", "string", true),
+      params.query("owner_id", "owner ID of NEW home", "string", true)
+      ],
+    "responseClass": "",
+    "errorResponses": [],
+    "nickname" : "addOneHomeMongoose"
+  },
+  'action': function (req,res) {
+    var home = new Home();
+    console.log(home);
+    console.log(home._id);
+    console.log(home.identity);
+    home.identity.name = req.query.name;
 
+    home.save(function (err) {
+      if (err) {
+        res.send(err);
+      }
+      res.json({ message: 'Home added to the db!', data: home });
+    });
+  }
+};
 
 //DELETE
 exports.deleteOneById = {
