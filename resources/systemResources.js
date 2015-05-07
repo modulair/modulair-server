@@ -4,6 +4,14 @@ var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandl
 var async = require('async');
 var BSON = mongo.BSONPure;
 
+
+var io = require('socket.io-client')('http://localhost:3211');
+var channel = '/system'
+var emit = function(data) {
+  io.emit(channel, data);
+}
+emit({title: 'connect'});
+
 exports.getAll = {
   'spec': {
     "description" : "Operations about systems",

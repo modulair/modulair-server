@@ -7,8 +7,13 @@ var BSON = mongo.BSONPure;
 var mongoose = require('mongoose');
 var Home = require('../models/home');
 
-var io = require('socket.io-client')('http://localhost:3211');
 
+var io = require('socket.io-client')('http://localhost:3211');
+var channel = '/home'
+var emit = function(data) {
+  io.emit(channel, data);
+}
+emit({title: 'connect'});
 // var io = require('../ioInstance').io;
 //GET
 exports.getAll = {
@@ -20,10 +25,11 @@ exports.getAll = {
     "nickname" : "getAllHome"
   },
   'action': function (req,res) {
-    io.emit('getAll', { content: 'get all called.', timestamp: Date.now()});
+
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('homecollection').find().toArray(function (err, items) {
-        res.send(JSON.stringify(items, null, 3));
+      emit({title: 'getAll', content: 'get all called.', timestamp: Date.now()});
+      res.status(200).send(JSON.stringify(items, null, 3));
     });
   }
 };
@@ -94,7 +100,7 @@ exports.getOneById = {
             break;
         }
       } else {
-        io.emit('getonecall', { content: 'get one by id called.', timestamp: Date.now(), home_id: homeRes[0]._id});
+        emit({title: 'getOneById', content: 'get one by id called.', timestamp: Date.now(), home_id: homeRes[0]._id});
         res.status(200).send(JSON.stringify(homeRes[0], null, 3));
       }
     });

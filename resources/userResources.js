@@ -4,6 +4,14 @@ var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandl
 var BSON = mongo.BSONPure;
 var async = require('async');
 
+
+var io = require('socket.io-client')('http://localhost:3211');
+var channel = '/user'
+var emit = function(data) {
+  io.emit(channel, data);
+}
+emit({title: 'connect'});
+
 //GET
 exports.getAll = {
   'spec': {
@@ -17,7 +25,8 @@ exports.getAll = {
   'action': function (req,res) {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('usercollection').find().toArray(function (err, items) {
-        res.status(200).send(JSON.stringify(items, null, 3));
+      emit('user get all');
+      res.status(200).send(JSON.stringify(items, null, 3));
     });
   }
 };
@@ -80,7 +89,7 @@ exports.getOneById = {
             message = errorHandling(err, "Not found.");
             res.status(err).send(JSON.stringify(message, null, 3));
             break;
-          default:        
+          default:
             message = errorHandling(err, "Unknown error.");
             res.status(500).send(JSON.stringify(message, null, 3));
             break;
@@ -182,7 +191,7 @@ exports.deleteOneById = {
             if (items.length<=0) {
               callback(404);
             } else if (items.length > 1) {
-              callback(400); 
+              callback(400);
             } else {
               userRes = items[0];
               callback(null);
@@ -190,7 +199,7 @@ exports.deleteOneById = {
           } else {
             callback(400);
           }
-        });        
+        });
       },
       function (callback) {
       //delete the particular user
@@ -233,7 +242,7 @@ exports.deleteOneById = {
             message = errorHandling(err, "Not found.");
             res.status(err).send(JSON.stringify(message, null, 3));
             break;
-          default:        
+          default:
             message = errorHandling(err, "Unknown error.");
             res.status(500).send(JSON.stringify(message, null, 3));
             break;

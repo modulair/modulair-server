@@ -4,6 +4,13 @@ var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandl
 var async = require('async');
 var BSON = mongo.BSONPure;
 
+var io = require('socket.io-client')('http://localhost:3211');
+var channel = '/subsystem'
+var emit = function(data) {
+  io.emit(channel, data);
+}
+emit({title: 'connect'});
+//GET
 exports.getAll = {
   'spec': {
     "description" : "Operations about subsystems",
@@ -26,7 +33,83 @@ exports.getAll = {
   }
 };
 
+exports.getOneById = {
+  'spec': {
+    "path" : "/subsystems/id/{subsystem_id}",
+    "notes" : "Returns one subsystem",
+    "summary" : "Returns one subsystem by ID",
+    "method": "GET",
+    "parameters" : [
+      params.path("subsystem_id", "subsystem ID to get", "string")
+      ],
+    "nickname" : "getOneByIdSubsystem"
+  },
+  'action': function (req,res) {
+    var home_id = req.params.subsystem_id || req.query.subsystem_id;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    var homeRes;
+    async.series([
+      function (callback) {
+      // check if string is ObjectID
+        if (/^[0-9a-f]{24}$/.test(subsystem_id)) {
+          callback(null);
+        } else {
+          callback(400);
+        }
+      },
+      function (callback) {
+        db.collection('subsystemcollection').find({_id:BSON.ObjectID(subsystem_id)}).toArray(function (err, items) {
+          if (!err) {
+            subsystemRes = items;
+            callback(null);
+          } else {
+            callback(400);
+          }
+        });
+      },
+      function (callback) {
+        if (subsystemRes.length <= 0) {
+          callback(404);
+        } else {
+          if (subsystemRes.length > 1) {
+            callback(400);
+          } else {
+            callback(null);
+          }
+        }
+      }
+    ],
+    // optional callback
+    function (err, results) {
+      // io.emit('getone',{content: 'get one by id called', timestamp: Date.now()});
 
+      if (err) {
+        switch(err) {
+          case 400:
+            message = errorHandling(err, "Bad request.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          case 404:
+            message = errorHandling(err, "Not found.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          default:
+            message = errorHandling(err, "Unknown error.");
+            res.status(500).send(JSON.stringify(message, null, 3));
+            break;
+        }
+      } else {
+        // io.emit('getonecall', { content: 'get one by id called.', timestamp: Date.now(), home_id: homeRes[0]._id});
+        res.status(200).send(JSON.stringify(homeRes[0], null, 3));
+      }
+    });
+  }
+};
+
+//PUT
+
+
+//POST
 exports.addOne = {
   'spec': {
     "path" : "/subsystems/add",
