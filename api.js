@@ -16,7 +16,7 @@ mongoose.connect('mongodb://localhost:27017/scratch-test');
 
 //BASE ROUTE
 var domain = config.routes.domain;
-var applicationUrl = 'http://' + domain + ':3211/v1';
+var applicationUrl = 'http://' + domain + '/v1';
 
 var apiIndex = require('./routes/apiIndex');
 //API SERVER

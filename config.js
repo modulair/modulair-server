@@ -7,7 +7,7 @@ if (process.env.NODE_ENV=='production') {
 } else {
   routes = {
     api: 'http://localhost:3211',
-    domain: 'localhost'
+    domain: 'localhost:3211'
     }
 }
 exports.routes = routes;
