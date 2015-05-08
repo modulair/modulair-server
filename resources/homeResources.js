@@ -1,3 +1,4 @@
+var config = require('../config');
 var mongo = require('mongoskin');
 var params = require("../node_modules/swagger-node-express/lib/paramTypes");
 var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling').error;
@@ -8,7 +9,7 @@ var mongoose = require('mongoose');
 var Home = require('../models/home');
 
 
-var io = require('socket.io-client')('http://localhost:3211');
+var io = require('socket.io-client')(config.routes.api);
 var channel = '/home'
 var emit = function(data) {
   io.emit(channel, data);
