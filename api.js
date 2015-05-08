@@ -1,3 +1,4 @@
+var config = require('./config');
 var express = require('express');
 var url =require('url');
 var path = require('path');
@@ -14,7 +15,7 @@ var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/scratch-test');
 
 //BASE ROUTE
-var domain = 'localhost';
+var domain = config.routes.domain;
 var applicationUrl = 'http://' + domain + ':3211/v1';
 
 var apiIndex = require('./routes/apiIndex');
