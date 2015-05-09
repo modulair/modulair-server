@@ -75,6 +75,7 @@ swagger
     .addPost(systemResources.addOne)
     .addDelete(systemResources.deleteOneById)
     //SYSTEM RESOURCES
+    .addGet(subsystemResources.changeState)
     .addGet(subsystemResources.getAll)
     .addPost(subsystemResources.addOne)
     .addDelete(subsystemResources.deleteOneById);

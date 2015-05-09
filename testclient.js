@@ -28,3 +28,11 @@ socket.on('home' + home_id, function(data){
  var msgtime = new Date(data.timestamp);
  console.log(msgtime.getHours() + ':' + msgtime.getMinutes() + ':' + msgtime.getSeconds() + ' : ' + data.content);
 });
+
+socket.on('client', function (data) {
+  if (data=='toggle') {
+    console.log('toggle');
+  } else {
+    console.log('other');
+  }
+});

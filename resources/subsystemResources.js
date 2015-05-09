@@ -107,6 +107,29 @@ exports.getOneById = {
   }
 };
 
+
+//GET
+exports.changeState = {
+  'spec': {
+    "description" : "Operations about subsystems",
+    "path" : "/subsystems/state",
+    "notes" : "changeState",
+    "summary" : "changeState",
+    "method": "GET",
+    "nickname" : "changeStateSubsystem"
+  },
+  'action': function (req,res) {
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    db.collection('subsystemcollection').find().toArray(function (err, items) {
+      if (items!=[]) {
+        emit({title: 'changeState'});
+        res.json(items);
+      } else {
+        res.send(errorHandling.error(404, 'not found'));
+      }
+    });
+  }
+};
 //PUT
 
 

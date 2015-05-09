@@ -35,6 +35,8 @@ io.on('connection', function (socket) {
     console.log(data);
     if (data.title=='connect') {
       console.log('subsystem listener connected');
+    } else if (data.title=='changeState') {
+      io.emit('client', 'toggle');
     }
   });
 
