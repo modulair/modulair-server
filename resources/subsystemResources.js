@@ -122,7 +122,7 @@ exports.changeState = {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('subsystemcollection').find().toArray(function (err, items) {
       if (items!=[]) {
-        emit({title: 'changeState', ip: req.ip, cookies: req.cookies});
+        emit({title: 'changeState', ip: req.ip, cookies: req.cookies, timestamp: Date.now()});
         //console.log(req.ip);
         res.json(items);
       } else {
