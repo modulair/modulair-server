@@ -122,8 +122,8 @@ exports.changeState = {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('subsystemcollection').find().toArray(function (err, items) {
       if (items!=[]) {
-        emit({title: 'changeState', ip: req.ip, cookies: req.cookies, timestamp: Date.now()});
-        //console.log(req.ip);
+        emit({title: 'changeState', headers: req.headers, ip: req.ip, cookies: req.cookies, timestamp: Date.now()});
+        //console.log(req);
         res.json(items);
       } else {
         res.send(errorHandling.error(404, 'not found'));
