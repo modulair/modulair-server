@@ -14,7 +14,7 @@ io.on('connection', function (socket) {
 
 
   socket.on('/user', function (data) {
-    console.log(data);
+    //console.log(data);
     if (data.title=='connect') {
       console.log('user listener connected');
     }
@@ -23,16 +23,16 @@ io.on('connection', function (socket) {
     if (data.title=='connect') {
       console.log('home listener connected');
     }
-    console.log(data);
+    //console.log(data);
   });
   socket.on('/system', function (data) {
-    console.log(data);
+    //console.log(data);
     if (data.title=='connect') {
       console.log('system listener connected');
     }
   });
   socket.on('/subsystem', function (data) {
-    console.log(data);
+    //console.log(data);
     if (data.title=='connect') {
       console.log('subsystem listener connected');
     } else if (data.title=='changeState') {

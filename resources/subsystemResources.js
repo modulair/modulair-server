@@ -26,7 +26,7 @@ exports.getAll = {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('subsystemcollection').find().toArray(function (err, items) {
       if (items!=[]) {
-        res.json(items);
+        res.json({items: items});
       } else {
         res.send(errorHandling.error(404, 'not found'));
       }
@@ -46,9 +46,9 @@ exports.getOneById = {
     "nickname" : "getOneByIdSubsystem"
   },
   'action': function (req,res) {
-    var home_id = req.params.subsystem_id || req.query.subsystem_id;
+    var subsystem_id = req.params.subsystem_id || req.query.subsystem_id;
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-    var homeRes;
+    var subsystemRes;
     async.series([
       function (callback) {
       // check if string is ObjectID
@@ -101,7 +101,7 @@ exports.getOneById = {
         }
       } else {
         // io.emit('getonecall', { content: 'get one by id called.', timestamp: Date.now(), home_id: homeRes[0]._id});
-        res.status(200).send(JSON.stringify(homeRes[0], null, 3));
+        res.status(200).send(JSON.stringify(subsystemRes[0], null, 3));
       }
     });
   }
