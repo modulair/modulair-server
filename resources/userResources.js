@@ -207,62 +207,65 @@ exports.login = {
     //ASYNC
     async.series([
       function (callback) {
-        // console.log(username);
+        // console.log(usernameBool);
         // console.log(password);
         // userToGet = {}
-        db.collection('usercollection').find({'username':'atash'}).toArray( function (err, items) {
-          console.log('err: '+err);
-          console.log(items);
-          callback(null);
-          // if (!err) {
-          //   userRes = items;
-          //   usernameBool = true;
-          //   console.log(items);
-          //   // if (items.identity.password==password) {
-          //   //   callback(null);
-          //   // } else {
-          //   //   callback(400);
-          //   // }
-          //   callback(null);
-          // } else {
-          //   callback(null);
-          // }
+        db.collection('usercollection').findOne({'identity.username':username}, function (err, items) {
+          // console.log('err: '+err);
+          // console.log(items);
+          // callback(null);
+          if (!err && items) {
+            userRes = items;
+            usernameBool = true;
+            // console.log(items);
+            if (items.identity.password==password) {
+              callback(null);
+            } else {
+              callback(400);
+            }
+          } else {
+            callback(null);
+          }
         });
       },
       function (callback) {
         // console.log('2');
-        callback(null);
-        // if (!usernameBool) {
-        //   db.collection('usercollection').find({email:username}).toArray(function (err, items) {
-        //     if (!err) {
-        //       userRes = items;
-        //       if (items[0].identity.password==password) {
-        //         callback(null);
-        //       } else {
-        //         callback(400);
-        //       }
-        //     } else {
-        //       callback(404);
-        //     }
-        //   });
-        // } else {
-        //   callback(null);
-        // }
+        // callback(null);
+        // console.log(usernameBool);
+        if (!usernameBool) {
+          db.collection('usercollection').findOne({'identity.email':username}, function (err, items) {
+            if (!err && items) {
+              userRes = items;
+              if (items.identity.password==password) {
+                callback(null);
+              } else {
+                callback(400);
+              }
+            } else {
+              callback(404);
+            }
+          });
+        } else {
+          callback(null);
+        }
       },
       function (callback) {
         // do some more stuff ...
         // console.log(userRes);
-        callback(null);
-        // var sessionToAdd = {user: userRes[0],
-        //                     timestamp: Date.now()}
-        // db.collection('sessioncollection').insert(sessionToAdd, function(err, result) {
-        //   if (err === null) {
-        //       sessionRes = result;
-        //       callback(null);
-        //     } else {
-        //       callback(500);
-        //     }
-        // });
+        // callback(null);
+        var sessionToAdd = {user: userRes,
+                            timestamp: Date.now(),
+                            expires: (Date.now() + 3600000)}
+        // console.log(sessionToAdd);
+        db.collection('sessioncollection').insert(sessionToAdd, function(err, result) {
+          if (err === null) {
+              console.log(result);
+              sessionRes = sessionToAdd;
+              callback(null);
+            } else {
+              callback(500);
+            }
+        });
       }
     ],
       // optional callback
@@ -280,7 +283,7 @@ exports.login = {
               break;
           }
         } else {
-          res.status(200).send(JSON.stringify(sessionRes),null, 3);
+          res.status(200).send(JSON.stringify({session: sessionRes}),null, 3);
         }
       }
     );

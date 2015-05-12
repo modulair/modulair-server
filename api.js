@@ -65,7 +65,7 @@ swagger
     .addGet(userResources.getAll)
     .addGet(userResources.getOneById)
     .addPost(userResources.addOne)
-    .addPost(userResources.login)
+    // .addPost(userResources.login)
     .addDelete(userResources.deleteOneById)
     //HOME RESOURCES
     .addGet(homeResources.getAll)
@@ -82,9 +82,10 @@ swagger
     .addGet(subsystemResources.getAll)
     .addGet(subsystemResources.getOneById)
     .addPost(subsystemResources.addOne)
-    .addDelete(subsystemResources.deleteOneById);
+    .addDelete(subsystemResources.deleteOneById)
     //SESSION RESOURCES
-    //.addGet(sessionResources.getAll);
+    .addGet(sessionResources.getAll)
+    .addPost(sessionResources.login);
 
 
 // Set api-doc path
