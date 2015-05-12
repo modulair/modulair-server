@@ -8,9 +8,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var chalk = require('chalk');
 
+//DB-MONGOSKN
 var mongo = require('mongoskin');
 var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
-
+//DB-MONGOOSEJS
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/scratch-test');
 
@@ -44,7 +45,8 @@ var swagger = require('swagger-node-express').createNew(subpath)
     , userResources = require('./resources/userResources')
     , homeResources = require('./resources/homeResources')
     , systemResources = require('./resources/systemResources')
-    , subsystemResources = require('./resources/subsystemResources');
+    , subsystemResources = require('./resources/subsystemResources')
+    , sessionResources = require('./resources/sessionResources');
 
 
 swagger.setApiInfo({
@@ -63,6 +65,7 @@ swagger
     .addGet(userResources.getAll)
     .addGet(userResources.getOneById)
     .addPost(userResources.addOne)
+    .addPost(userResources.login)
     .addDelete(userResources.deleteOneById)
     //HOME RESOURCES
     .addGet(homeResources.getAll)
@@ -74,12 +77,14 @@ swagger
     .addGet(systemResources.getAll)
     .addPost(systemResources.addOne)
     .addDelete(systemResources.deleteOneById)
-    //SYSTEM RESOURCES
+    //SUBSYSTEM RESOURCES
     .addGet(subsystemResources.changeState)
     .addGet(subsystemResources.getAll)
     .addGet(subsystemResources.getOneById)
     .addPost(subsystemResources.addOne)
     .addDelete(subsystemResources.deleteOneById);
+    //SESSION RESOURCES
+    //.addGet(sessionResources.getAll);
 
 
 // Set api-doc path

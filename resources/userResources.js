@@ -154,6 +154,139 @@ exports.addOne = {
   }
 };
 
+
+exports.login = {
+  'spec': {
+    "path" : "/users/login",
+    "notes" : "Login",
+    "summary" : "Login",
+    "method": "POST",
+    "parameters" : [
+      params.query("username", "username for login", "string", true),
+      params.query("password", "password for login", "string", true)
+      ],
+    "responseClass": "",
+    "errorResponses": [],
+    "nickname" : "loginUser"
+  },
+  'action': function (req,res) {
+    //TODO: use hashing for password.
+
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    var username = req.query.username || req.body.username || '';
+    var password = req.query.password || req.body.password || '';
+
+    var userRes;
+    var sessionRes;
+    var usernameBool=false;
+    // if (newUsername && newEmail && newFullname && newPassword) {
+    //   var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    //   var userToAdd = {
+    //     "identity": {
+    //       "username": newUsername,
+    //       "email": newEmail,
+    //       "fullname": newFullname,
+    //       "password": newPassword
+    //     },
+    //     "created": Date.now(),
+    //     "updated": Date.now()
+    //   }
+    //   db.collection('usercollection').insert(userToAdd, function(err, result) {
+    //     if (err === null) {
+    //         res.status(200).send(JSON.stringify(userToAdd, null, 3));
+    //       } else {
+    //         message = errorHandling(500, "unknown error");
+    //         res.status(500).send(JSON.stringify(message, null, 3));
+    //       }
+    //   });
+    // } else {
+    //         message = errorHandling(400, "Bad request.");
+    //         res.status(400).send(JSON.stringify(message, null, 3));
+    // }
+    var userToGet;
+    //ASYNC
+    async.series([
+      function (callback) {
+        // console.log(username);
+        // console.log(password);
+        // userToGet = {}
+        db.collection('usercollection').find({'username':'atash'}).toArray( function (err, items) {
+          console.log('err: '+err);
+          console.log(items);
+          callback(null);
+          // if (!err) {
+          //   userRes = items;
+          //   usernameBool = true;
+          //   console.log(items);
+          //   // if (items.identity.password==password) {
+          //   //   callback(null);
+          //   // } else {
+          //   //   callback(400);
+          //   // }
+          //   callback(null);
+          // } else {
+          //   callback(null);
+          // }
+        });
+      },
+      function (callback) {
+        // console.log('2');
+        callback(null);
+        // if (!usernameBool) {
+        //   db.collection('usercollection').find({email:username}).toArray(function (err, items) {
+        //     if (!err) {
+        //       userRes = items;
+        //       if (items[0].identity.password==password) {
+        //         callback(null);
+        //       } else {
+        //         callback(400);
+        //       }
+        //     } else {
+        //       callback(404);
+        //     }
+        //   });
+        // } else {
+        //   callback(null);
+        // }
+      },
+      function (callback) {
+        // do some more stuff ...
+        // console.log(userRes);
+        callback(null);
+        // var sessionToAdd = {user: userRes[0],
+        //                     timestamp: Date.now()}
+        // db.collection('sessioncollection').insert(sessionToAdd, function(err, result) {
+        //   if (err === null) {
+        //       sessionRes = result;
+        //       callback(null);
+        //     } else {
+        //       callback(500);
+        //     }
+        // });
+      }
+    ],
+      // optional callback
+      function (err, results) {
+        if (err) {
+          switch(err) {
+            case 400:
+              res.status(err).send(errorHandling(err, "Bad request."));
+              break;
+            case 404:
+              res.status(err).send(errorHandling(err, "Not found."));
+              break;
+            default:
+              res.status(500).send(JSON.stringify("Unknown error."));
+              break;
+          }
+        } else {
+          res.status(200).send(JSON.stringify(sessionRes),null, 3);
+        }
+      }
+    );
+  }
+};
+
 //PUT
 
 
