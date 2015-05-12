@@ -26,7 +26,7 @@ exports.getAll = {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('subsystemcollection').find().toArray(function (err, items) {
       if (items!=[]) {
-        res.json({items: items});
+        res.json({result: items});
       } else {
         res.send(errorHandling.error(404, 'not found'));
       }

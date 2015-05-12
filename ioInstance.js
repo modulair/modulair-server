@@ -41,19 +41,6 @@ io.on('connection', function (socket) {
   });
 
 
-  // socket.on('getOneById', function(data){
-  //   console.log('wow this works!!');
-  //   console.log(data);
-  //   socket.broadcast.emit('home'+data.home_id, { content: data.home_id + ' API CALLED YO.', timestamp: Date.now()});
-  //   socket.disconnect();
-  // });
-  //
-  // socket.on('getAll', function(data){
-  //   console.log('wow this works!!');
-  //   console.log(data);
-  //   socket.broadcast.emit('this', { content: 'GETALL API CALLED YO.', timestamp: Date.now()});
-  // });
-
   socket.on('disconnect', function () {
     user.count--;
     io.emit('disconnection',{content: 'a user disconnected', timestamp: Date.now()});

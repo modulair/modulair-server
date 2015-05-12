@@ -7,5 +7,6 @@ if (process.env.NODE_ENV=='production') {
 } else if (process.env.NODE_ENV=='testing') {
   console.log('environment: ' + chalk.bgYellow(process.env.NODE_ENV));
 } else {
+  process.env.NODE_ENV='development';
   console.log('environment: ' + chalk.bgRed(process.env.NODE_ENV));
 }

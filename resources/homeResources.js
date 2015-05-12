@@ -15,7 +15,7 @@ var emit = function(data) {
   io.emit(channel, data);
 }
 emit({title: 'connect'});
-// var io = require('../ioInstance').io;
+
 //GET
 exports.getAll = {
   'spec': {
@@ -30,7 +30,7 @@ exports.getAll = {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('homecollection').find().toArray(function (err, items) {
       emit({title: 'getAll', content: 'get all called.', timestamp: Date.now()});
-      res.status(200).send(JSON.stringify(items, null, 3));
+      res.status(200).send(JSON.stringify({result: items}, null, 3));
     });
   }
 };

@@ -27,7 +27,7 @@ exports.getAll = {
     var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
     db.collection('usercollection').find().toArray(function (err, items) {
       emit('user get all');
-      res.status(200).send(JSON.stringify(items, null, 3));
+      res.status(200).send(JSON.stringify({result: items}, null, 3));
     });
   }
 };
@@ -113,31 +113,28 @@ exports.addOne = {
       params.query("username", "username of NEW user", "string", true),
       params.query("email", "email of NEW user", "string", true),
       params.query("fullname", "fullname of NEW user", "string", true),
-      params.query("age", "age of NEW user", "int", true),
-      params.query("location", "location of NEW user", "string", true),
-      params.query("gender", "gender of NEW user", "string", true),
+      params.query("password", "password of NEW user", "string", true)
       ],
     "responseClass": "",
     "errorResponses": [],
     "nickname" : "addOneUser"
   },
   'action': function (req,res) {
+    //TODO: use hashing for password.
+
     var newUsername = req.query.username || req.body.username || '';
     var newEmail = req.query.email || req.body.email || '';
     var newFullname = req.query.fullname || req.body.fullname || '';
-    var newAge = req.query.age || req.body.age || undefined;
-    var newLocation = req.query.location || req.body.location || '';
-    var newGender = req.query.gender || req.body.gender || '';
-    if (newUsername && newEmail && newFullname && newAge && newLocation && newGender) {
+    var newPassword = req.query.password || req.body.password || undefined;
+
+    if (newUsername && newEmail && newFullname && newPassword) {
       var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
       var userToAdd = {
         "identity": {
           "username": newUsername,
           "email": newEmail,
           "fullname": newFullname,
-          "age": newAge,
-          "location": newLocation,
-          "gender": newGender
+          "password": newPassword
         },
         "created": Date.now(),
         "updated": Date.now()
