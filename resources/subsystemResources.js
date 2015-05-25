@@ -245,6 +245,117 @@ exports.addOne = {
   }
 };
 
+exports.toggle = {
+  'spec': {
+    "path" : "/subsystems/{subsystem_id}/toggle/{state}",
+    "notes" : "Toggle one subsystem",
+    "summary" : "Toggle one subsystem",
+    "method": "POST",
+    "parameters" : [
+      params.path("subsystem_id", "ID of NEW subsystem", "string"),
+      params.path("state", "ID of NEW subsystem", "string")
+      ],
+    "responseClass": "",
+    "errorResponses": [],
+    "nickname" : "toggleSubsystem"
+  },
+  'action': function (req,res) {
+    var subsystemID = req.params.subsystem_id || '';
+    var state = req.params.state || '';
+    var subsystemToAdd;
+    var systemRes;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    console.log(subsystemID + ' ' + state);
+    emit({title: 'toggle', headers: req.headers, ip: req.ip, cookies: req.cookies, timestamp: Date.now(), subsystem: subsystemID, state: state});
+    res.status(200).send(JSON.stringify("OK"));
+
+    // async.series([
+    //   function (callback) {
+    //   // check if string is ObjectID
+    //     if (/^[0-9A-Fa-f]{24}$/.test(newSystemID)) {
+    //       callback(null);
+    //     } else {
+    //       callback(400);
+    //     }
+    //   },
+    //   function (callback) {
+    //     db.collection('systemcollection').find({_id:BSON.ObjectID(newSystemID)}).toArray(function (err, items) {
+    //       if (!err) {
+    //         // console.log(items);
+    //         systemRes = items;
+    //         console.log(systemRes);
+    //         if (systemRes.length <= 0) {
+    //           callback(404);
+    //         } else {
+    //           if (systemRes.length > 1) {
+    //             callback(400);
+    //           } else {
+    //             //only 1 system found
+    //             callback(null);
+    //           }
+    //         }
+    //       } else {
+    //         callback(400);
+    //       }
+    //     });
+    //   },
+    //   function (callback) {
+    //     if (newName!=null && newName!=null) {
+    //       subsystemToAdd = {
+    //         "identity": {
+    //           "name": newName
+    //         },
+    //         "interface": newInterface,
+    //         "system_id": systemRes[0]._id,
+    //         "system_identity": systemRes[0].identity,
+    //         "state": {},
+    //         "desired_state": {},
+    //         "created": Date.now(),
+    //         "updated": Date.now()
+    //       }
+    //       callback(null);
+    //     } else {
+    //       callback(400);
+    //     }
+    //   },
+    //   function (callback) {
+    //   //INCEPTION
+    //     db.collection('subsystemcollection').insert(subsystemToAdd, function(err, result) {
+    //       if (!err) {
+    //         db.collection('systemcollection').update({_id:BSON.ObjectID(newSystemID)}, {$push: {subsystems: {subsystem_id: result[0]._id, subsystem_name:result[0].identity.name}}, $set: {updated: Date.now()}}, function (err) {
+    //           if (!err) {
+    //             callback(null);
+    //           } else {
+    //             callback(400);
+    //           }
+    //         });
+    //       } else {
+    //         callback(400);
+    //       }
+    //     });
+    //   }
+    // ],
+    // // optional callback
+    // function (err, results) {
+    //   if (err) {
+    //     switch(err) {
+    //       case 400:
+    //         res.status(err).send(errorHandling(err, "Bad request."));
+    //         break;
+    //       case 404:
+    //         res.status(err).send(errorHandling(err, "Not found."));
+    //         break;
+    //       default:
+    //         res.status(500).send(JSON.stringify("Unknown error."));
+    //         break;
+    //     }
+    //   } else {
+    //     res.status(200).send(JSON.stringify("OK"));
+    //   }
+    // });
+  }
+};
+
 
 //DELETE
 exports.deleteOneById = {

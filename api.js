@@ -82,6 +82,7 @@ swagger
     .addGet(subsystemResources.getAll)
     .addGet(subsystemResources.getOneById)
     .addPost(subsystemResources.addOne)
+    .addPost(subsystemResources.toggle)
     .addDelete(subsystemResources.deleteOneById)
     //SESSION RESOURCES
     .addGet(sessionResources.getAll)
