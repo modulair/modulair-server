@@ -11,6 +11,12 @@ io.on('connection', function (socket) {
   user.count++;
   console.log('a user connected, number of users = ' + user.count);
   socket.broadcast.emit('this', { content: 'a socket connected.', timestamp: Date.now()});
+  
+  socket.on('camera', function (data) {
+          io.emit('androidcam', data);
+          io.emit('client', data);
+          socket.emit('received', data);
+      });
 
 
   socket.on('/user', function (data) {
