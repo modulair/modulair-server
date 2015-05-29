@@ -86,7 +86,8 @@ swagger
     .addDelete(subsystemResources.deleteOneById)
     //SESSION RESOURCES
     .addGet(sessionResources.getAll)
-    .addPost(sessionResources.login);
+    .addPost(sessionResources.login)
+    .addDelete(sessionResources.deleteOneById);
 
 
 // Set api-doc path

@@ -1,7 +1,7 @@
 var config = require('../config');
 var mongo = require('mongoskin');
-var params = require("../node_modules/swagger-node-express/lib/paramTypes");
-var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling').error;
+var params = require('../drivers').params;
+var errorHandling = require('../drivers').errorHandler;
 var BSON = mongo.BSONPure;
 var async = require('async');
 
@@ -131,5 +131,82 @@ exports.login = {
         }
       }
     );
+  }
+};
+
+//DELETE
+exports.deleteOneById = {
+  'spec': {
+    "path" : "/sessions/id/{session_id}",
+    "notes" : "Deletes one session",
+    "summary" : "Deletes one session by ID",
+    "method": "DELETE",
+    "parameters" : [
+      params.path("session_id", "session ID of user", "string")
+      ],
+    "nickname" : "deleteOneByIdSession"
+  },
+  'action': function (req,res) {
+    var session_id = req.params.session_id || req.query.session_id;
+    var db = mongo.db("mongodb://localhost:27017/scratch-test", {native_parser:true});
+    var sessionRes;
+    async.series([
+      function (callback) {
+      // check if string is ObjectID
+        if (/^[0-9a-f]{24}$/.test(session_id)) {
+          callback(null);
+        } else {
+          callback(400);
+        }
+      },
+      function (callback) {
+        db.collection('sessioncollection').find({_id:BSON.ObjectID(session_id)}).toArray(function (err, items) {
+        //stash the user data
+          if (!err) {
+            if (items.length<=0) {
+              callback(404);
+            } else if (items.length > 1) {
+              callback(400);
+            } else {
+              userRes = items[0];
+              callback(null);
+            }
+          } else {
+            callback(400);
+          }
+        });
+      },
+      function (callback) {
+      //delete the particular user
+        db.collection('sessioncollection').remove({_id:BSON.ObjectID(session_id)}, function (err, items) {
+          if (!err) {
+            callback(null);
+          } else {
+            callback(400);
+          }
+        });
+      }
+    ],
+    // optional callback
+    function (err, results) {
+      if (err) {
+        switch(err) {
+          case 400:
+            message = errorHandling(err, "Bad request.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          case 404:
+            message = errorHandling(err, "Not found.");
+            res.status(err).send(JSON.stringify(message, null, 3));
+            break;
+          default:
+            message = errorHandling(err, "Unknown error.");
+            res.status(500).send(JSON.stringify(message, null, 3));
+            break;
+        }
+      } else {
+        res.status(200).send(JSON.stringify({result: "success", message: "session has been deleted"}, null, 3));
+      }
+    });
   }
 };

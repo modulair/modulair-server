@@ -1,8 +1,9 @@
 var config = require('../config');
-var mongo = require('mongoskin');
-var params = require("../node_modules/swagger-node-express/lib/paramTypes");
-var errorHandling = require('../node_modules/swagger-node-express/lib/errorHandling').error;
+var params = require('../drivers').params;
+var errorHandling = require('../drivers').errorHandler;
 var async = require('async');
+
+var mongo = require('mongoskin');
 var BSON = mongo.BSONPure;
 
 var mongoose = require('mongoose');
